@@ -19,6 +19,11 @@ func GetCountryId(c *gin.Context) {
 	id := c.Param("id")
 
 	var country models.Country
+	if err := database.DB.First(&country, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "País no encontrado"})
+		return
+	}
+
 	database.DB.First(&country, id)
 	c.JSON(http.StatusOK, country)
 }
