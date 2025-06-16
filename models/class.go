@@ -6,8 +6,8 @@ import (
 )
 
 type Class struct {
-	ID              uint           `json:"id" gorm:"primaryKey"`
-	Date            time.Time      `json:"date"`
+	Id              uint           `json:"id" gorm:"primaryKey"`
+	Date            string         `json:"date"`
 	Time            string         `json:"time"`
 	Capacity        int            `json:"capacity"`
 	GymId           uint           `json:"gym_id"`

@@ -6,7 +6,7 @@ import (
 )
 
 type Wod struct {
-	ID              uint           `json:"id" gorm:"primaryKey"`
+	Id              uint           `json:"id" gorm:"primaryKey"`
 	Name            string         `json:"name"`
 	Description     string         `json:"description"`
 	Type            string         `json:"type"`

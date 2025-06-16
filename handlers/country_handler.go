@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetCountries(c *gin.Context) {
 	var countries []models.Country
 	database.DB.Find(&countries)
-	c.JSON(http.StatusOK, countries)
+	var response []dto.CountryResponse
+	for _, cal := range countries {
+		response = append(response, transformers.TransformCountry(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetCountryId(c *gin.Context) {
@@ -25,7 +30,8 @@ func GetCountryId(c *gin.Context) {
 	}
 
 	database.DB.First(&country, id)
-	c.JSON(http.StatusOK, country)
+	response := transformers.TransformCountry(country)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateCountry(c *gin.Context) {
@@ -35,7 +41,8 @@ func CreateCountry(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&country)
-	c.JSON(http.StatusOK, country)
+	response := transformers.TransformCountry(country)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -59,7 +66,8 @@ func UpdatedCountry(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, country)
+	response := transformers.TransformCountry(country)
+	c.JSON(http.StatusOK, response)
 }
 
 func DeleteCountry(c *gin.Context) {

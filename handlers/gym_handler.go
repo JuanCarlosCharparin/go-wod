@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetGyms(c *gin.Context) {
 	var gyms []models.Gym
 	database.DB.Preload("Country").Find(&gyms)
-	c.JSON(http.StatusOK, gyms)
+	var response []dto.GymResponse
+	for _, cal := range gyms {
+		response = append(response, transformers.TransformGym(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -24,7 +29,8 @@ func GetGymId(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Gimnasio no encontrado"})
 		return
 	}
-	c.JSON(http.StatusOK, gym)
+	response := transformers.TransformGym(gym)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -44,7 +50,8 @@ func CreateGym(c *gin.Context) {
 	}
 	database.DB.Create(&gym)
 	database.DB.Preload("Country").First(&gym, gym.Id)
-	c.JSON(http.StatusOK, gym)
+	response := transformers.TransformGym(gym)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -74,7 +81,8 @@ func UpdatedGym(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gym)
+	response := transformers.TransformGym(gym)
+	c.JSON(http.StatusOK, response)
 }
 
 func DeleteGym(c *gin.Context) {

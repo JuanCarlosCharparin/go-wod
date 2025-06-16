@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetDisciplines(c *gin.Context) {
 	var disciplines []models.Discipline
 	database.DB.Find(&disciplines)
-	c.JSON(http.StatusOK, disciplines)
+	var response []dto.DisciplineResponse
+	for _, cal := range disciplines {
+		response = append(response, transformers.TransformDiscipline(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetDisciplineId(c *gin.Context) {
@@ -25,7 +30,8 @@ func GetDisciplineId(c *gin.Context) {
 	}
 
 	database.DB.First(&discipline, id)
-	c.JSON(http.StatusOK, discipline)
+	response := transformers.TransformDiscipline(discipline)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateDiscipline(c *gin.Context) {
@@ -35,7 +41,8 @@ func CreateDiscipline(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&discipline)
-	c.JSON(http.StatusOK, discipline)
+	response := transformers.TransformDiscipline(discipline)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -58,8 +65,8 @@ func UpdatedDiscipline(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo actualizar"})
 		return
 	}
-
-	c.JSON(http.StatusOK, discipline)
+	response := transformers.TransformDiscipline(discipline)
+	c.JSON(http.StatusOK, response)
 }
 
 func DeleteDiscipline(c *gin.Context) {

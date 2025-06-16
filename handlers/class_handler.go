@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetClasses(c *gin.Context) {
 	var classes []models.Class
 	database.DB.Preload("Gym.Country").Preload("Discipline").Find(&classes)
-	c.JSON(http.StatusOK, classes)
+	var response []dto.ClassResponse
+	for _, cal := range classes {
+		response = append(response, transformers.TransformClass(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetClassId(c *gin.Context) {
@@ -19,11 +24,12 @@ func GetClassId(c *gin.Context) {
 	id := c.Param("id")
 
 	var class models.Class
-	if err := database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Discipline").First(&class, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Clase no encontrada"})
 		return
 	}
-	c.JSON(http.StatusOK, class)
+	response := transformers.TransformClass(class)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateClass(c *gin.Context) {
@@ -51,8 +57,9 @@ func CreateClass(c *gin.Context) {
 	}
 	
 	database.DB.Create(&class)
-	database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, class.ID)
-	c.JSON(http.StatusOK, class)
+	database.DB.Preload("Gym").Preload("Discipline").First(&class, class.Id)
+	response := transformers.TransformClass(class)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -60,7 +67,7 @@ func UpdatedClass(c *gin.Context) {
 	id := c.Param("id")
 
 	var class models.Class
-	if err := database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Discipline").First(&class, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Clase no encontrada"})
 		return
 	}
@@ -77,12 +84,13 @@ func UpdatedClass(c *gin.Context) {
 	}
 
 	// Recargamos con el gimnasio, país y disciplina actualizada
-	if err := database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Discipline").First(&class, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cargar el gimnasio, país y disciplina"})
 		return
 	}
 
-	c.JSON(http.StatusOK, class)
+	response := transformers.TransformClass(class)
+	c.JSON(http.StatusOK, response)
 }
 
 

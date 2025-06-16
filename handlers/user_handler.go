@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetUsers(c *gin.Context) {
 	var users []models.User
-	database.DB.Preload("Gym.Country").Find(&users)
-	c.JSON(http.StatusOK, users)
+	database.DB.Preload("Gym").Find(&users)
+	var response []dto.UserResponse
+	for _, cal := range users {
+		response = append(response, transformers.TransformUser(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetUserId(c *gin.Context) {
@@ -19,11 +24,12 @@ func GetUserId(c *gin.Context) {
 	id := c.Param("id")
 
 	var user models.User
-	if err := database.DB.Preload("Gym.Country").First(&user, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").First(&user, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+	response := transformers.TransformUser(user)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateUser(c *gin.Context) {
@@ -48,8 +54,9 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&user)
-	database.DB.Preload("Gym.Country").First(&user, user.ID)
-	c.JSON(http.StatusOK, user)
+	database.DB.Preload("Gym").First(&user, user.Id)
+	response := transformers.TransformUser(user)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -79,7 +86,8 @@ func UpdatedUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	response := transformers.TransformUser(user)
+	c.JSON(http.StatusOK, response)
 }
 
 

@@ -11,7 +11,17 @@ func main() {
 	database.Connect()
 
 	// AutoMigrar la tabla si no existe
-	database.DB.AutoMigrate(&models.Country{}, &models.Gym{}, &models.User{}, &models.Discipline{}, &models.Wod{})
+	database.DB.AutoMigrate(
+		&models.Country{}, 
+		&models.Gym{}, 
+		&models.User{}, 
+		&models.Discipline{}, 
+		&models.Wod{}, 
+		&models.Calendar{},
+		&models.Class{},
+		&models.Pack{},
+		&models.UserPack{},
+	)
 
 	r := gin.Default()
 
@@ -66,8 +76,24 @@ func main() {
 	r.GET("/calendar", handlers.GetCalendars)
 	r.GET("/calendar/:id", handlers.GetCalendarId)
 	r.POST("/calendar", handlers.CreateCalendar)
-	/*r.PUT("/calendars/:id", handlers.UpdatedClass)
-	r.DELETE("/calendars/:id", handlers.DeleteClass)*/
+	r.PUT("/calendars/:id", handlers.UpdatedCalendar)
+	r.DELETE("/calendars/:id", handlers.DeleteCalendar)
+
+
+	//packs
+	r.GET("/packs", handlers.GetPacks)
+	r.GET("/packs/:id", handlers.GetPackId)
+	r.POST("/packs", handlers.CreatePack)
+	r.PUT("/packs/:id", handlers.UpdatedPack)
+	r.DELETE("/packs/:id", handlers.DeletePack)
+
+
+	//user_packs
+	r.GET("/user_packs", handlers.GetUserPacks)
+	r.GET("/user_packs/:id", handlers.GetUserPackId)
+	r.POST("/user_packs", handlers.CreateUserPack)
+	r.PUT("/user_packs/:id", handlers.UpdatedUserPack)
+	r.DELETE("/user_packs/:id", handlers.DeleteUserPack)
 
 	r.Run(":8080")
 }

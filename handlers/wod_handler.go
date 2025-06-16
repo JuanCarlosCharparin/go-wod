@@ -4,14 +4,19 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetWods(c *gin.Context) {
 	var wods []models.Wod
-	database.DB.Preload("Gym.Country").Find(&wods)
-	c.JSON(http.StatusOK, wods)
+	database.DB.Preload("Gym").Find(&wods)
+	var response []dto.WodResponse
+	for _, cal := range wods {
+		response = append(response, transformers.TransformWod(cal))
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func GetWodId(c *gin.Context) {
@@ -19,11 +24,12 @@ func GetWodId(c *gin.Context) {
 	id := c.Param("id")
 
 	var wod models.Wod
-	if err := database.DB.Preload("Gym.Country").First(&wod, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").First(&wod, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Wod no encontrado"})
 		return
 	}
-	c.JSON(http.StatusOK, wod)
+	response := transformers.TransformWod(wod)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateWod(c *gin.Context) {
@@ -42,8 +48,9 @@ func CreateWod(c *gin.Context) {
 	}
 	
 	database.DB.Create(&wod)
-	database.DB.Preload("Gym.Country").First(&wod, wod.ID)
-	c.JSON(http.StatusOK, wod)
+	database.DB.Preload("Gym").First(&wod, wod.Id)
+	response := transformers.TransformWod(wod)
+	c.JSON(http.StatusOK, response)
 }
 
 
@@ -67,13 +74,14 @@ func UpdatedWod(c *gin.Context) {
 		return
 	}
 
-	// Recargamos con el gimnasio y país actualizado
-	if err := database.DB.Preload("Gym.Country").First(&wod, id).Error; err != nil {
+	// Recargamos con el gimnasio actualizado
+	if err := database.DB.Preload("Gym").First(&wod, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cargar el gimnasio y el país"})
 		return
 	}
 
-	c.JSON(http.StatusOK, wod)
+	response := transformers.TransformWod(wod)
+	c.JSON(http.StatusOK, response)
 }
 
 

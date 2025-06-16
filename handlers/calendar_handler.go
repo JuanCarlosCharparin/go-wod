@@ -4,14 +4,25 @@ import (
 	"wod-go/database"
 	"wod-go/models"
 	"net/http"
-
+	"wod-go/dto"
+	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
 )
 
 func GetCalendars(c *gin.Context) {
 	var calendars []models.Calendar
-	database.DB.Preload("User").Preload("Class").Find(&calendars)
-	c.JSON(http.StatusOK, calendars)
+	database.DB.
+		Preload("User").
+		Preload("Class.Gym").
+		Preload("Class.Discipline").
+		Find(&calendars)
+
+	var response []dto.CalendarResponse
+	for _, cal := range calendars {
+		response = append(response, transformers.TransformCalendar(cal))
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func GetCalendarId(c *gin.Context) {
@@ -19,11 +30,12 @@ func GetCalendarId(c *gin.Context) {
 	id := c.Param("id")
 
 	var calendar models.Calendar
-	if err := database.DB.Preload("User").Preload("Class").First(&calendar, id).Error; err != nil {
+	if err := database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Calendario no encontrado"})
 		return
 	}
-	c.JSON(http.StatusOK, calendar)
+	response := transformers.TransformCalendar(calendar)
+	c.JSON(http.StatusOK, response)
 }
 
 func CreateCalendar(c *gin.Context) {
@@ -51,42 +63,44 @@ func CreateCalendar(c *gin.Context) {
 	}
 	
 	database.DB.Create(&calendar)
-	database.DB.Preload("User").Preload("Class").First(&calendar, calendar.ID)
-	c.JSON(http.StatusOK, class)
+	database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, calendar.Id)
+	response := transformers.TransformCalendar(calendar)
+	c.JSON(http.StatusOK, response)
 }
 
 
-/*func UpdatedClass(c *gin.Context) {
+func UpdatedCalendar(c *gin.Context) {
 	id := c.Param("id")
 
-	var class models.Class
-	if err := database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Clase no encontrada"})
+	var calendar models.Calendar
+	if err := database.DB.Preload("Gym").Preload("Discipline").First(&calendar, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Gimnasio no encontrada"})
 		return
 	}
 
-	var updatedData models.Class
+	var updatedData models.Calendar
 	if err := c.ShouldBindJSON(&updatedData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := database.DB.Model(&class).Updates(updatedData).Error; err != nil {
+	if err := database.DB.Model(&calendar).Updates(updatedData).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo actualizar"})
 		return
 	}
 
 	// Recargamos con el gimnasio, país y disciplina actualizada
-	if err := database.DB.Preload("Gym.Country").Preload("Discipline").First(&class, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cargar el gimnasio, país y disciplina"})
+	if err := database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cargar el gimnasio y disciplina"})
 		return
 	}
 
-	c.JSON(http.StatusOK, class)
+	response := transformers.TransformCalendar(calendar)
+	c.JSON(http.StatusOK, response)
 }
 
 
-func DeleteClass(c *gin.Context) {
+func DeleteCalendar(c *gin.Context) {
 	id := c.Param("id")
 
 	var class models.Class
@@ -101,4 +115,4 @@ func DeleteClass(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Clase eliminada correctamente"})
-}*/
+}
