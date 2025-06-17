@@ -32,6 +32,28 @@ func GetUserId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func GetUsersByGymId(c *gin.Context) {
+	gymID := c.Param("id")
+
+	var users []models.User
+	if err := database.DB.Preload("Gym").Where("gym_id = ?", gymID).Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios"})
+		return
+	}
+
+	if len(users) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron usuarios para este gimnasio"})
+		return
+	}
+
+	var response []dto.UserResponse
+	for _, user := range users {
+		response = append(response, transformers.TransformUser(user))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {

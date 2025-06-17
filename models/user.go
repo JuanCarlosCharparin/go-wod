@@ -15,7 +15,7 @@ type User struct {
 	MovilPhone      *string        `json:"movil_phone"`
 	BirthDate       *string        `json:"birth_date"`
 	DNI             *string        `json:"dni"`
-	Password        string         `json:"password"`
+	Password        string         `json:"-"`
 	GymId           uint           `json:"gym_id"`
 	Gym             Gym            `json:"gym" gorm:"foreignKey:GymId"`
 	CreatedAt       time.Time      `json:"created_at"`

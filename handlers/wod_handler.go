@@ -32,6 +32,30 @@ func GetWodId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+
+func GetWodByGymId(c *gin.Context) {
+
+	gymID := c.Param("id")
+
+	var wods []models.Wod
+	if err := database.DB.Preload("Gym").Where("gym_id = ?", gymID).Find(&wods).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Error al buscar gimnasios"})
+		return
+	}
+
+	if len(wods) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron wods para este gimnasio"})
+		return
+	}
+
+	var response []dto.WodResponse
+	for _, wod := range wods {
+		response = append(response, transformers.TransformWod(wod))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func CreateWod(c *gin.Context) {
 	var wod models.Wod
 	if err := c.ShouldBindJSON(&wod); err != nil {

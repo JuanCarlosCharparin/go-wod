@@ -32,6 +32,29 @@ func GetClassId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+
+func GetClassesByGymId(c *gin.Context) {
+	gymID := c.Param("id")
+
+	var classes []models.Class
+	if err := database.DB.Preload("Gym").Preload("Discipline").Where("gym_id = ?", gymID).Find(&classes).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar gimnasios"})
+		return
+	}
+
+	if len(classes) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron clases para este gimnasio"})
+		return
+	}
+
+	var response []dto.ClassResponse
+	for _, class := range classes {
+		response = append(response, transformers.TransformClass(class))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func CreateClass(c *gin.Context) {
 	var class models.Class
 	if err := c.ShouldBindJSON(&class); err != nil {

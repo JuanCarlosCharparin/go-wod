@@ -38,6 +38,30 @@ func GetCalendarId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+
+func GetUsersByClassId(c *gin.Context) {
+	classID := c.Param("id")
+
+	var calendars []models.Calendar
+	if err := database.DB.Preload("User").Where("class_id = ?", classID).Find(&calendars).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios"})
+		return
+	}
+
+	if len(calendars) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron usuarios para esta clase"})
+		return
+	}
+
+	var response []dto.UserResponse
+	for _, calendar := range calendars {
+		response = append(response, transformers.TransformUser(calendar.User))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
 func CreateCalendar(c *gin.Context) {
 	var calendar models.Calendar
 	if err := c.ShouldBindJSON(&calendar); err != nil {

@@ -34,6 +34,29 @@ func GetGymId(c *gin.Context) {
 }
 
 
+func GetGymsByCountryId(c *gin.Context) {
+	countryID := c.Param("id")
+
+	var gyms []models.Gym
+	if err := database.DB.Preload("Country").Where("country_id = ?", countryID).Find(&gyms).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar gimnasios"})
+		return
+	}
+
+	if len(gyms) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron gimnasios para este país"})
+		return
+	}
+
+	var response []dto.GymResponse
+	for _, gym := range gyms {
+		response = append(response, transformers.TransformGym(gym))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
 func CreateGym(c *gin.Context) {
 	var gym models.Gym
 	if err := c.ShouldBindJSON(&gym); err != nil {
