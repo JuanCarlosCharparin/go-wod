@@ -1,0 +1,431 @@
+-- MySQL dump 10.13  Distrib 8.0.19, for Win64 (x86_64)
+--
+-- Host: localhost    Database: wod-db-go
+-- ------------------------------------------------------
+-- Server version	9.3.0
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `calendar`
+--
+
+DROP TABLE IF EXISTS `calendar`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `calendar` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint unsigned NOT NULL,
+  `class_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `calendar_user_id_foreign` (`user_id`),
+  KEY `calendar_class_id_foreign` (`class_id`),
+  CONSTRAINT `calendar_class_id_foreign` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `calendar_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `calendar`
+--
+
+LOCK TABLES `calendar` WRITE;
+/*!40000 ALTER TABLE `calendar` DISABLE KEYS */;
+INSERT INTO `calendar` VALUES (1,1,1,'2025-06-09 23:42:25','2025-06-09 23:42:25'),(2,3,1,'2025-06-17 01:10:55','2025-06-17 01:10:55'),(3,3,5,'2025-06-17 21:43:47','2025-06-17 21:43:47');
+/*!40000 ALTER TABLE `calendar` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `classes`
+--
+
+DROP TABLE IF EXISTS `classes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `classes` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `time` time NOT NULL,
+  `capacity` smallint unsigned NOT NULL,
+  `gym_id` bigint unsigned NOT NULL,
+  `discipline_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_class` (`gym_id`,`date`,`time`),
+  KEY `classes_discipline_id_foreign` (`discipline_id`),
+  CONSTRAINT `classes_discipline_id_foreign` FOREIGN KEY (`discipline_id`) REFERENCES `disciplines` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `classes_gym_id_foreign` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `classes`
+--
+
+LOCK TABLES `classes` WRITE;
+/*!40000 ALTER TABLE `classes` DISABLE KEYS */;
+INSERT INTO `classes` VALUES (1,'2025-06-09','20:00:00',25,1,1,'2025-06-08 22:39:19','2025-06-09 00:05:24',NULL),(2,'2025-06-09','21:00:00',20,1,1,'2025-06-09 00:06:06','2025-06-09 00:06:06',NULL),(3,'2025-06-17','20:00:00',25,1,1,'2025-06-15 17:22:38','2025-06-15 17:22:38',NULL),(4,'2025-06-18','20:00:00',25,1,1,'2025-06-15 21:43:51','2025-06-15 21:43:51',NULL),(5,'2025-06-19','10:00:00',15,1,1,'2025-06-15 22:43:25','2025-06-15 22:43:25',NULL);
+/*!40000 ALTER TABLE `classes` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `countries`
+--
+
+DROP TABLE IF EXISTS `countries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `countries` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext COLLATE utf8mb4_unicode_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_countries_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `countries`
+--
+
+LOCK TABLES `countries` WRITE;
+/*!40000 ALTER TABLE `countries` DISABLE KEYS */;
+INSERT INTO `countries` VALUES (1,'Argentina','2025-06-02 22:27:26.174','2025-06-11 18:51:56.144',NULL),(2,'Chile','2025-06-04 18:59:34.397','2025-06-04 19:04:51.316','2025-06-05 20:00:54.126');
+/*!40000 ALTER TABLE `countries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `disciplines`
+--
+
+DROP TABLE IF EXISTS `disciplines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `disciplines` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_disciplines_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `disciplines`
+--
+
+LOCK TABLES `disciplines` WRITE;
+/*!40000 ALTER TABLE `disciplines` DISABLE KEYS */;
+INSERT INTO `disciplines` VALUES (1,'Crossfit','2025-06-08 13:39:26.000','2025-06-08 13:43:39.000',NULL),(2,'Crossfit','2025-06-08 19:12:05.617','2025-06-08 19:12:05.617','2025-06-08 19:12:52.332'),(3,'Fitness','2025-06-13 21:19:39.729','2025-06-13 21:19:39.729',NULL);
+/*!40000 ALTER TABLE `disciplines` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `gyms`
+--
+
+DROP TABLE IF EXISTS `gyms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gyms` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext,
+  `location` longtext,
+  `phone` longtext,
+  `email` longtext,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `country_id` bigint unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_gyms_country` (`country_id`),
+  KEY `idx_gyms_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_gyms_country` FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`),
+  CONSTRAINT `gyms_country_id_foreign` FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gyms`
+--
+
+LOCK TABLES `gyms` WRITE;
+/*!40000 ALTER TABLE `gyms` DISABLE KEYS */;
+INSERT INTO `gyms` VALUES (1,'Hook Fitness','Av Urquiza y Bruno Morón, Coquimbito','2615752185','hookfitness@gmail.com','2025-06-05 20:20:32.649','2025-06-05 20:20:32.649',NULL,1),(2,'Hook Fitness Buenos Aires','Av Mar del Plata','2615752189','hookfitness@gmail.ar','2025-06-05 20:28:05.859','2025-06-05 20:51:44.472',NULL,1),(3,'On Fitness','Av Sarmiento 1265 Luzuriaga','2615752185','onfintess@gmail.com.ar','2025-06-13 21:40:01.455','2025-06-13 21:42:12.314',NULL,1);
+/*!40000 ALTER TABLE `gyms` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `packs`
+--
+
+DROP TABLE IF EXISTS `packs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `packs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `pack_name` varchar(255) NOT NULL,
+  `price` decimal(8,2) NOT NULL,
+  `class_quantity` int NOT NULL,
+  `months` int NOT NULL,
+  `gym_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `packs_gym_id_foreign` (`gym_id`),
+  CONSTRAINT `packs_gym_id_foreign` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `packs`
+--
+
+LOCK TABLES `packs` WRITE;
+/*!40000 ALTER TABLE `packs` DISABLE KEYS */;
+INSERT INTO `packs` VALUES (1,'Pack Mensual x8',20000.00,8,1,1,'2025-06-15 23:44:53','2025-06-15 23:44:53',NULL),(2,'Pack Mensual x12',30000.00,12,1,1,'2025-06-16 00:39:19','2025-06-16 00:40:46',NULL);
+/*!40000 ALTER TABLE `packs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `roles`
+--
+
+DROP TABLE IF EXISTS `roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `roles` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `roles`
+--
+
+LOCK TABLES `roles` WRITE;
+/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
+INSERT INTO `roles` VALUES (1,'superadmin','2025-06-19 23:17:58','2025-06-19 23:17:58',NULL),(2,'admin','2025-06-19 23:18:38','2025-06-19 23:18:38',NULL),(3,'user','2025-06-19 23:18:43','2025-06-19 23:18:43',NULL);
+/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `schedule_blocks`
+--
+
+DROP TABLE IF EXISTS `schedule_blocks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `schedule_blocks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `template_id` bigint unsigned NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `capacity` int NOT NULL,
+  `discipline_id` bigint unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `template_id` (`template_id`),
+  KEY `discipline_id` (`discipline_id`),
+  CONSTRAINT `schedule_blocks_ibfk_1` FOREIGN KEY (`template_id`) REFERENCES `schedule_templates` (`id`),
+  CONSTRAINT `schedule_blocks_ibfk_2` FOREIGN KEY (`discipline_id`) REFERENCES `disciplines` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `schedule_blocks`
+--
+
+LOCK TABLES `schedule_blocks` WRITE;
+/*!40000 ALTER TABLE `schedule_blocks` DISABLE KEYS */;
+INSERT INTO `schedule_blocks` VALUES (1,1,'08:00:00','09:00:00',20,1),(2,1,'09:00:00','10:00:00',15,1),(3,1,'10:00:00','11:00:00',10,1),(4,1,'15:00:00','16:00:00',15,1),(5,1,'18:00:00','19:00:00',10,1);
+/*!40000 ALTER TABLE `schedule_blocks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `schedule_templates`
+--
+
+DROP TABLE IF EXISTS `schedule_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `schedule_templates` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `gym_id` bigint unsigned NOT NULL,
+  `day` varchar(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `gym_id` (`gym_id`),
+  CONSTRAINT `schedule_templates_ibfk_1` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `schedule_templates`
+--
+
+LOCK TABLES `schedule_templates` WRITE;
+/*!40000 ALTER TABLE `schedule_templates` DISABLE KEYS */;
+INSERT INTO `schedule_templates` VALUES (1,1,'Lunes');
+/*!40000 ALTER TABLE `schedule_templates` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext,
+  `lastname` longtext,
+  `gender` longtext,
+  `phone` longtext,
+  `email` varchar(191) DEFAULT NULL,
+  `movil_phone` longtext,
+  `birth_date` longtext,
+  `dni` longtext,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` longtext,
+  `remember_token` varchar(100) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `gym_id` bigint unsigned DEFAULT NULL,
+  `role_id` bigint NOT NULL DEFAULT '3',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uni_users_email` (`email`),
+  KEY `fk_users_gym` (`gym_id`),
+  KEY `idx_users_deleted_at` (`deleted_at`),
+  KEY `fk_role` (`role_id`),
+  CONSTRAINT `fk_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
+  CONSTRAINT `fk_users_gym` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`),
+  CONSTRAINT `users_gym_id_foreign` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (1,'Juan','Charparin','Masculino','2615752185','juan.charpa@example.com','2615123456','2000-08-30','42862648',NULL,'123456',NULL,'2025-06-08 13:07:45.000','2025-06-08 13:22:16.000',NULL,1,3),(2,'Rocio','Charparin','Femenino','2615752185','rocio.charpa@example.com','2615752185','1998-04-30','41083888',NULL,'123456',NULL,'2025-06-15 19:29:13.323','2025-06-15 19:35:43.595',NULL,1,3),(3,'Emiliano','Guzman','Masculino','2615752185','emiliano.guzman@example.com',NULL,'2000-07-02','42862649',NULL,'$2a$10$xfPRSOyB2L1T2Px6zbXgk.Rfr7gycIQC4lVsrNGygnZlbogoNG1aK',NULL,'2025-06-16 16:48:30.909','2025-06-16 16:48:30.909',NULL,1,3),(4,'Analia','Moreno','Femenino','2615752185','analia.moreno@example.com',NULL,'1970-11-22','42862649',NULL,'',NULL,'2025-06-18 22:23:40.043','2025-06-18 22:23:40.043',NULL,1,3);
+/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users_packs`
+--
+
+DROP TABLE IF EXISTS `users_packs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `users_packs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `start_date` date NOT NULL,
+  `expiration_date` date NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT '1',
+  `gym_id` bigint unsigned NOT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  `pack_id` bigint unsigned NOT NULL,
+  `discipline_id` bigint unsigned DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `users_packs_gym_id_foreign` (`gym_id`),
+  KEY `users_packs_user_id_foreign` (`user_id`),
+  KEY `users_packs_pack_id_foreign` (`pack_id`),
+  KEY `users_packs_discipline_id_foreign` (`discipline_id`),
+  CONSTRAINT `users_packs_discipline_id_foreign` FOREIGN KEY (`discipline_id`) REFERENCES `disciplines` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `users_packs_gym_id_foreign` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `users_packs_pack_id_foreign` FOREIGN KEY (`pack_id`) REFERENCES `packs` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `users_packs_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users_packs`
+--
+
+LOCK TABLES `users_packs` WRITE;
+/*!40000 ALTER TABLE `users_packs` DISABLE KEYS */;
+INSERT INTO `users_packs` VALUES (1,'2025-06-15','2025-07-15',1,1,1,1,1,'2025-06-16 00:47:28','2025-06-16 01:10:54',NULL),(2,'2025-06-16','2025-07-16',1,1,2,2,1,'2025-06-16 01:20:31','2025-06-16 01:21:14',NULL);
+/*!40000 ALTER TABLE `users_packs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `wods`
+--
+
+DROP TABLE IF EXISTS `wods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `wods` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext,
+  `description` longtext,
+  `type` longtext,
+  `duration` bigint DEFAULT NULL,
+  `level` longtext,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `gym_id` bigint unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_wods_gym` (`gym_id`),
+  KEY `idx_wods_deleted_at` (`deleted_at`),
+  CONSTRAINT `fk_wods_gym` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`),
+  CONSTRAINT `wods_gym_id_foreign` FOREIGN KEY (`gym_id`) REFERENCES `gyms` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `wods`
+--
+
+LOCK TABLES `wods` WRITE;
+/*!40000 ALTER TABLE `wods` DISABLE KEYS */;
+INSERT INTO `wods` VALUES (1,'Crossfit','Cardio al 100','AMRAP',18,'Avanzado','2025-06-08 19:14:29.659','2025-06-08 19:15:22.996',NULL,1),(2,'Heavy','Heavy without air','For Time',15,'Avanzado','2025-06-15 12:52:56.235','2025-06-15 12:55:05.505',NULL,1);
+/*!40000 ALTER TABLE `wods` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'wod-db-go'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-06-19 21:35:01

@@ -11,7 +11,7 @@ import (
 
 func GetUsers(c *gin.Context) {
 	var users []models.User
-	database.DB.Preload("Gym").Find(&users)
+	database.DB.Preload("Gym").Preload("Role").Find(&users)
 	var response []dto.UserResponse
 	for _, cal := range users {
 		response = append(response, transformers.TransformUser(cal))
@@ -24,7 +24,7 @@ func GetUserId(c *gin.Context) {
 	id := c.Param("id")
 
 	var user models.User
-	if err := database.DB.Preload("Gym").First(&user, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Role").First(&user, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
 		return
 	}
@@ -36,7 +36,7 @@ func GetUsersByGymId(c *gin.Context) {
 	gymID := c.Param("id")
 
 	var users []models.User
-	if err := database.DB.Preload("Gym").Where("gym_id = ?", gymID).Find(&users).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Role").Where("gym_id = ?", gymID).Find(&users).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios"})
 		return
 	}
@@ -76,7 +76,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 	database.DB.Create(&user)
-	database.DB.Preload("Gym").First(&user, user.Id)
+	database.DB.Preload("Gym").Preload("Role").First(&user, user.Id)
 	response := transformers.TransformUser(user)
 	c.JSON(http.StatusOK, response)
 }
@@ -86,7 +86,7 @@ func UpdatedUser(c *gin.Context) {
 	id := c.Param("id")
 
 	var user models.User
-	if err := database.DB.Preload("Gym").First(&user, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").Preload("Role").First(&user, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
 		return
 	}
@@ -103,7 +103,7 @@ func UpdatedUser(c *gin.Context) {
 	}
 
 	// Recargamos con el gimnasio y país actualizado
-	if err := database.DB.Preload("Gym.Country").First(&user, id).Error; err != nil {
+	if err := database.DB.Preload("Gym.Country").Preload("Role").First(&user, id).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al cargar el gimnasio y el país"})
 		return
 	}

@@ -20,5 +20,9 @@ func TransformUser(user models.User) dto.UserResponse {
 			ID:   user.GymId,
 			Name: user.Gym.Name,
 		},
+		Role: dto.RoleResponse{
+			Id:   user.RoleId,
+			Name: user.Role.Name,
+		},
 	}
 }

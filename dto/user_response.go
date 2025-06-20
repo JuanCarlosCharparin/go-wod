@@ -9,7 +9,8 @@ type UserResponse struct {
 	Email     string      `json:"email"`
 	DNI       string      `json:"dni"`
 	BirthDate *string     `json:"birth_date,omitempty"`
-	Gym       GymResponseMin `json:"gym,omitempty"` 
+	Gym       GymResponseMin `json:"gym"` 
+	Role	  RoleResponse `json:"role"` 
 }
 
 

@@ -18,6 +18,8 @@ type User struct {
 	Password        string         `json:"-"`
 	GymId           uint           `json:"gym_id"`
 	Gym             Gym            `json:"gym" gorm:"foreignKey:GymId"`
+	RoleId 			uint           `json:"role_id"` 
+	Role   			Role           `json:"role" gorm:"foreignKey:RoleId"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`

@@ -33,6 +33,9 @@ func main() {
 		&models.Class{},
 		&models.Pack{},
 		&models.UserPack{},
+		&models.ScheduleTemplate{}, 
+		&models.ScheduleBlock{},
+		&models.Role{},
 	)
 
 	r := gin.Default()
@@ -111,6 +114,7 @@ func main() {
 	r.GET("/calendar", handlers.GetCalendars)
 	r.GET("/calendar/:id", handlers.GetCalendarId)
 	r.GET("/calendar/class/:id", handlers.GetUsersByClassId)
+	r.GET("/calendar/users/:id", handlers.GetClassesByUserId)
 	r.POST("/calendar", handlers.CreateCalendar)
 	r.PUT("/calendars/:id", handlers.UpdatedCalendar)
 	r.DELETE("/calendars/:id", handlers.DeleteCalendar)
@@ -130,6 +134,17 @@ func main() {
 	r.POST("/user_packs", handlers.CreateUserPack)
 	r.PUT("/user_packs/:id", handlers.UpdatedUserPack)
 	r.DELETE("/user_packs/:id", handlers.DeleteUserPack)
+
+
+	//schedules
+	r.GET("/templates/gym/:id", handlers.GetScheduleTemplatesByGymID)
+	r.POST("/schedule-templates", handlers.CreateScheduleTemplate)
+	r.POST("/schedule-blocks", handlers.CreateScheduleBlock)
+
+	//roles
+	r.GET("/roles", handlers.GetRoles)
+	r.POST("/roles", handlers.CreateRole)
+
 
 	r.Run(":8080")
 }
