@@ -3,10 +3,12 @@ package handlers
 import (
 	"wod-go/database"
 	"wod-go/models"
+	"wod-go/services"
 	"net/http"
 	"wod-go/dto"
 	"wod-go/transformers"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 func GetClasses(c *gin.Context) {
@@ -47,9 +49,14 @@ func GetClassesByGymId(c *gin.Context) {
 		return
 	}
 
-	var response []dto.ClassResponse
+	var response []dto.ClassResponseCapacity
 	for _, class := range classes {
-		response = append(response, transformers.TransformClass(class))
+		var count int64
+		database.DB.Model(&models.Calendar{}).
+			Where("class_id = ?", class.Id).
+			Count(&count)
+
+		response = append(response, transformers.TransformClassCapacity(class, int(count)))
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -132,4 +139,35 @@ func DeleteClass(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Clase eliminada correctamente"})
+}
+
+
+//Generar clases de manera automatica
+
+func GenerateClassesHandler(c *gin.Context) {
+	var body struct {
+		GymID uint   `json:"gym_id"`
+		From  string `json:"from"`
+		To    string `json:"to"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	fromDate, err1 := time.Parse("2006-01-02", body.From)
+	toDate, err2 := time.Parse("2006-01-02", body.To)
+
+	if err1 != nil || err2 != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Formato de fechas inválido"})
+		return
+	}
+
+	if err := services.GenerateClassesFromTemplates(body.GymID, fromDate, toDate); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generando clases"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Clases generadas exitosamente"})
 }

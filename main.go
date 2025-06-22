@@ -108,6 +108,8 @@ func main() {
 	r.POST("/classes", handlers.CreateClass)
 	r.PUT("/classes/:id", handlers.UpdatedClass)
 	r.DELETE("/classes/:id", handlers.DeleteClass)
+	/* generar clases*/
+	r.POST("/generate-classes", handlers.GenerateClassesHandler)
 
 
 	//calendars
@@ -117,7 +119,7 @@ func main() {
 	r.GET("/calendar/users/:id", handlers.GetClassesByUserId)
 	r.POST("/calendar", handlers.CreateCalendar)
 	r.PUT("/calendars/:id", handlers.UpdatedCalendar)
-	r.DELETE("/calendars/:id", handlers.DeleteCalendar)
+	r.DELETE("/calendar", handlers.CancelClassEnrollment)
 
 
 	//packs
