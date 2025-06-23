@@ -32,6 +32,30 @@ func GetPackId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+
+func GetPackByGymId(c *gin.Context) {
+
+	gymID := c.Param("id")
+
+	var packs []models.Pack
+	if err := database.DB.Preload("Gym").Where("gym_id = ?", gymID).Find(&packs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar packs del gimnasio"})
+		return
+	}
+
+	if len(packs) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron packs para este gimnasio"})
+		return
+	}
+
+	var response []dto.PackResponse
+	for _, pack := range packs {
+		response = append(response, transformers.TransformPack(pack))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func CreatePack(c *gin.Context) {
 	var pack models.Pack
 	if err := c.ShouldBindJSON(&pack); err != nil {

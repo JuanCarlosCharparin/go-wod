@@ -125,6 +125,7 @@ func main() {
 	//packs
 	r.GET("/packs", handlers.GetPacks)
 	r.GET("/packs/:id", handlers.GetPackId)
+	r.GET("/packs/gym/:id", handlers.GetPackByGymId)
 	r.POST("/packs", handlers.CreatePack)
 	r.PUT("/packs/:id", handlers.UpdatedPack)
 	r.DELETE("/packs/:id", handlers.DeletePack)

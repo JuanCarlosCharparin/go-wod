@@ -156,7 +156,7 @@ func CreateCalendar(c *gin.Context) {
 	database.DB.Create(&calendar)
 	database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, calendar.Id)
 
-	response := transformers.TransformCalendar(calendar/*, packUsage*/, nil)
+	response := transformers.TransformCalendar(calendar, packUsage)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Inscripción exitosa",

@@ -54,12 +54,13 @@ func Register(c *gin.Context) {
 		BirthDate: input.BirthDate,
 		Password:  string(hashedPassword),
 		GymId:     input.GymId,
+		RoleId:    3,
 	}
 
 	database.DB.Create(&user)
-	database.DB.Preload("Gym").First(&user, user.Id)
-
+	database.DB.Preload("Gym").Preload("Role").First(&user, user.Id)
 	response := transformers.TransformUser(user)
+
 	c.JSON(http.StatusOK, response)
 }
 

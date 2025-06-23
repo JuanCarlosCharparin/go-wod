@@ -7,8 +7,8 @@ import (
 
 type UserPack struct {
 	Id              uint           `json:"id" gorm:"primaryKey"`
-	StartDate       time.Time         `json:"start_date"`
-	ExpirationDate  time.Time        `json:"expiration_date"`
+	StartDate       time.Time      `json:"start_date"`
+	ExpirationDate  time.Time      `json:"expiration_date"`
 	Status          int            `json:"status"`
 	GymId           uint           `json:"gym_id"`           
 	Gym             Gym            `json:"gym" gorm:"foreignKey:GymId"`
