@@ -4,6 +4,7 @@ type CalendarResponse struct {
 	ID    uint            `json:"id"`
 	User  UserResponseMin `json:"user"`
 	Class ClassResponse   `json:"class"`
+	Status string         `json:"status"`
 	PackUsage *PackUsageResponse `json:"pack_usage,omitempty"`
 }
 

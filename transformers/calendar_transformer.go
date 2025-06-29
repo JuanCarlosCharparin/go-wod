@@ -39,6 +39,7 @@ func TransformCalendar(calendar models.Calendar, usage *services.PackUsage) dto.
 				Name: calendar.Class.Discipline.Name,
 			},
 		},
+		Status: calendar.Status,
 		PackUsage: usageDto,
 	}
 }

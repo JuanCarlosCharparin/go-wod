@@ -1,0 +1,55 @@
+1. Historial de asistencia del usuario
+
+    ¿Qué clases tomó? ¿Cuándo? ¿Faltó a alguna?
+
+    → Tabla attendances o registrar automáticamente cuando pasa la clase y el alumno estaba inscripto.
+
+2. Control de inasistencias / penalizaciones
+
+    Por ejemplo, si se inscribió y no asistió, se le descuenta el crédito igual o se lo penaliza tras 3 faltas.
+
+3. Notificaciones o recordatorios
+
+    Recordatorio 1 hora antes de su clase.
+
+    Aviso cuando le quedan pocas clases disponibles.
+
+    Email o push con Expo Notifications si usás React Native.
+
+4. Listado de espera (waitlist)
+
+    Si la clase está llena, que se puedan anotar en lista de espera.
+
+    Cuando alguien se baja, se asigna al primero en la lista.
+
+5. Dashboard del gimnasio
+
+    ¿Cuántos alumnos activos hay?
+
+    ¿Cuántas clases esta semana? ¿Capacidad ocupada?
+
+    ¿Qué packs son los más vendidos?
+
+6. Horarios visibles por disciplina o entrenador
+
+    Un endpoint tipo /horarios?disciplina_id=2 o /horarios?profesor_id=5.
+
+7. Sistema de reservas múltiples
+
+    Inscribirse a varias clases con un solo clic desde un calendario semanal.
+
+8. Control de pagos y facturación (opcional)
+
+    Relacionar packs con un pago (tabla payments).
+
+    Registrar si está pago, método (efectivo, MP), fecha, etc.
+
+9. App móvil para admins / alumnos (frontend)
+
+    Ya estás con React Native. Buen momento para ofrecer experiencia mobile dedicada.
+
+10. Soporte para múltiples gimnasios (modo SaaS)
+
+    Ya estás cerca: podrías permitir que cada gimnasio administre su base, sus usuarios y horarios.
+
+    Te acercaría a una app como Fitco, SportClub o similares.

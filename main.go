@@ -36,6 +36,7 @@ func main() {
 		&models.ScheduleTemplate{}, 
 		&models.ScheduleBlock{},
 		&models.Role{},
+		&models.GymSetting{},
 	)
 
 	r := gin.Default()
@@ -147,6 +148,9 @@ func main() {
 	//roles
 	r.GET("/roles", handlers.GetRoles)
 	r.POST("/roles", handlers.CreateRole)
+
+	//gym_settings
+	r.GET("/settings", handlers.GetSettings)
 
 
 	r.Run(":8080")

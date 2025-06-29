@@ -11,6 +11,7 @@ type Calendar struct {
 	User            User           `json:"user" gorm:"foreignKey:UserId"`
 	ClassId         uint           `json:"class_id"`
 	Class           Class          `json:"class" gorm:"foreignKey:ClassId"`
+	Status          string		   `json:"status"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 }
