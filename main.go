@@ -106,6 +106,7 @@ func main() {
 	r.GET("/classes", handlers.GetClasses)
 	r.GET("/classes/:id", handlers.GetClassId)
 	r.GET("/classes/gym/:id", handlers.GetClassesByGymId)
+	r.GET("/calendar/gym/:id/upcoming", handlers.GetUpcomingClassesByGymId) //clases futuras
 	r.POST("/classes", handlers.CreateClass)
 	r.PUT("/classes/:id", handlers.UpdatedClass)
 	r.DELETE("/classes/:id", handlers.DeleteClass)

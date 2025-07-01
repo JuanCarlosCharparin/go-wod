@@ -49,18 +49,74 @@ func GetClassesByGymId(c *gin.Context) {
 		return
 	}
 
-	var response []dto.ClassResponseCapacity
+	var response []dto.ClassResponseInfo
 	for _, class := range classes {
 		var count int64
 		database.DB.Model(&models.Calendar{}).
 			Where("class_id = ?", class.Id).
 			Count(&count)
 
-		response = append(response, transformers.TransformClassCapacity(class, int(count)))
+		response = append(response, transformers.TransformClassInfo(class, int(count)))
 	}
 
 	c.JSON(http.StatusOK, response)
 }
+
+
+func GetUpcomingClassesByGymId(c *gin.Context) {
+	gymID := c.Param("id")
+
+	var classes []models.Class
+	err := database.DB.
+		Preload("Gym").
+		Preload("Discipline").
+		Where("gym_id = ?", gymID).
+		Find(&classes).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar clases"})
+		return
+	}
+
+	var response []dto.ClassResponseInfo
+	now := time.Now()
+
+	for _, class := range classes {
+		// Parse date y time
+		dateParsed, errDate := time.Parse(time.RFC3339, class.Date)
+		timeParsed, errTime := time.Parse("15:04:05", class.Time)
+
+		if errDate != nil || errTime != nil {
+			continue // ignorar clases con formato incorrecto
+		}
+
+		// Combinar date + time
+		classDateTime := time.Date(
+			dateParsed.Year(), dateParsed.Month(), dateParsed.Day(),
+			timeParsed.Hour(), timeParsed.Minute(), timeParsed.Second(),
+			0, dateParsed.Location(),
+		)
+
+		// Filtrar clases futuras
+		if classDateTime.After(now) {
+			var count int64
+			database.DB.Model(&models.Calendar{}).
+				Where("class_id = ?", class.Id).
+				Count(&count)
+
+			response = append(response, transformers.TransformClassInfo(class, int(count)))
+		}
+	}
+
+	if len(response) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No hay clases futuras para este gimnasio"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
 
 func CreateClass(c *gin.Context) {
 	var class models.Class

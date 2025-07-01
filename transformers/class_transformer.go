@@ -24,11 +24,10 @@ func TransformClass(class models.Class) dto.ClassResponse {
 }
 
 
-
-func TransformClassCapacity(class models.Class, enrolled int) dto.ClassResponseCapacity {
+func TransformClassInfo(class models.Class, enrolled int) dto.ClassResponseInfo {
 	vacancy := class.Capacity - enrolled
 
-	return dto.ClassResponseCapacity{
+	return dto.ClassResponseInfo{
 		ID:       class.Id,
 		Date:     class.Date,
 		Time:     class.Time,
@@ -43,5 +42,24 @@ func TransformClassCapacity(class models.Class, enrolled int) dto.ClassResponseC
 			ID:   class.Discipline.Id,
 			Name: class.Discipline.Name,
 		},
+	}
+}
+
+
+
+func TransformClassWithStatus(class models.Class, status string) dto.ClassWithStatusResponse {
+	return dto.ClassWithStatusResponse{
+		ID:     class.Id,
+		Date:   class.Date,
+		Time:   class.Time,
+		Gym: dto.GymResponseMin{
+			ID:   class.Gym.Id,
+			Name: class.Gym.Name,
+		},
+		Discipline: dto.DisciplineResponse{
+			ID:   class.Discipline.Id,
+			Name: class.Discipline.Name,
+		},
+		Status: status,
 	}
 }

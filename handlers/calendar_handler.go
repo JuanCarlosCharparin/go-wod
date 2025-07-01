@@ -82,14 +82,9 @@ func GetClassesByUserId(c *gin.Context) {
 		return
 	}
 
-	var response []dto.ClassResponseCapacity
+	var response []dto.ClassWithStatusResponse
 	for _, calendar := range calendars {
-		var count int64
-		database.DB.Model(&models.Calendar{}).
-			Where("class_id = ?", calendar.Class.Id). 
-			Count(&count)
-
-		response = append(response, transformers.TransformClassCapacity(calendar.Class, int(count)))
+		response = append(response, transformers.TransformClassWithStatus(calendar.Class, calendar.Status))
 	}
 
 	c.JSON(http.StatusOK, response)

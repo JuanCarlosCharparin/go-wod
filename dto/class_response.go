@@ -12,7 +12,7 @@ type ClassResponse struct {
 }
 
 
-type ClassResponseCapacity struct {
+type ClassResponseInfo struct {
 	ID         uint               `json:"id"`
 	Date       string             `json:"date"`
 	Time       string             `json:"time"`
@@ -21,4 +21,14 @@ type ClassResponseCapacity struct {
 	Vacancy    int                `json:"vacancy"`  // capacidad - inscriptos
 	Gym        GymResponseMin     `json:"gym"`
 	Discipline DisciplineResponse `json:"discipline"`
+}
+
+
+type ClassWithStatusResponse struct {
+	ID         uint               `json:"id"`
+	Date       string             `json:"date"`
+	Time       string             `json:"time"`
+	Gym        GymResponseMin     `json:"gym"`
+	Discipline DisciplineResponse `json:"discipline"`
+	Status     string             `json:"status"`
 }
