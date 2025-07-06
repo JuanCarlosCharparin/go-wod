@@ -136,7 +136,27 @@ func CreateCalendar(c *gin.Context) {
 		Count(&count)
 
 	if int(count) >= class.Capacity {
-		c.JSON(http.StatusForbidden, gin.H{"error": "La clase ya está completa"})
+		// Clase llena → inscribir en waitlist
+		wait := models.Waitlist{
+			UserId:  calendar.UserId,
+			ClassId: calendar.ClassId,
+		}
+
+		// Verificar si ya está en la lista
+		var existingWait models.Waitlist
+		if err := database.DB.
+			Where("user_id = ? AND class_id = ?", wait.UserId, wait.ClassId).
+			First(&existingWait).Error; err == nil {
+			c.JSON(http.StatusConflict, gin.H{"error": "Ya estás en la lista de espera de esta clase"})
+			return
+		}
+
+		database.DB.Create(&wait)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Clase llena. Te has anotado en la lista de espera.",
+			"waitlist": true,
+		})
 		return
 	}
 

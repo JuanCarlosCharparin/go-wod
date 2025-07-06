@@ -7,7 +7,8 @@ import (
 	"wod-go/handlers"
 	"wod-go/middleware"
 	"wod-go/models"
-
+	"github.com/gin-contrib/cors"
+	//"time"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -37,9 +38,12 @@ func main() {
 		&models.ScheduleBlock{},
 		&models.Role{},
 		&models.GymSetting{},
+		&models.Waitlist{},
 	)
 
 	r := gin.Default()
+
+	r.Use(cors.Default())
 
 	// Rutas protegidas
 	protected := r.Group("/api")
