@@ -1,16 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"wod-go/database"
 	"wod-go/handlers"
+	"wod-go/jobs"
 	"wod-go/middleware"
 	"wod-go/models"
 	"github.com/gin-contrib/cors"
-	//"time"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/robfig/cron/v3"
 )
 
 func init() {
@@ -43,6 +46,7 @@ func main() {
 
 	r := gin.Default()
 
+	//cors
 	r.Use(cors.Default())
 
 	// Rutas protegidas
@@ -54,6 +58,24 @@ func main() {
 		// etc...
 	}
 
+	// Iniciar el cron de busqueda de packs vencidos
+	c := cron.New()
+	c.AddFunc("@daily", jobs.CheckExpiredUserPacks) 
+	c.Start()
+
+
+	//
+	args := os.Args
+
+	if len(args) > 1 && args[1] == "check-expired-packs" {
+		fmt.Println("→ Ejecutando job de verificación de packs expirados")
+		jobs.CheckExpiredUserPacks()
+		return
+	}
+
+
+
+	//rutas protegidas login
 	r.GET("/protected", middleware.AuthMiddleware(), func(c *gin.Context) {
 		userID := c.MustGet("user_id").(uint)
 		c.JSON(http.StatusOK, gin.H{
@@ -126,6 +148,8 @@ func main() {
 	r.POST("/calendar", handlers.CreateCalendar)
 	r.PUT("/calendars/:id", handlers.UpdatedCalendar)
 	r.DELETE("/calendar", handlers.CancelClassEnrollment)
+	//clases usadas y restantes por usuario
+	r.GET("/calendar/users/used-classes/:id", handlers.GetUserUsedClasses)
 
 
 	//packs
@@ -158,5 +182,6 @@ func main() {
 	r.GET("/settings", handlers.GetSettings)
 
 
+	// Levantar la API normalmente
 	r.Run(":8080")
 }

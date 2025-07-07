@@ -1,10 +1,10 @@
-1. Historial de asistencia del usuario
+1. Historial de asistencia del usuario (finalizado)
 
     ¿Qué clases tomó? ¿Cuándo? ¿Faltó a alguna?
 
     → Tabla attendances o registrar automáticamente cuando pasa la clase y el alumno estaba inscripto.
 
-2. Control de inasistencias / penalizaciones
+2. Control de inasistencias / penalizaciones (en proceso)
 
     Por ejemplo, si se inscribió y no asistió, se le descuenta el crédito igual o se lo penaliza tras 3 faltas.
 
@@ -16,7 +16,7 @@
 
     Email o push con Expo Notifications si usás React Native.
 
-4. Listado de espera (waitlist)
+4. Listado de espera (waitlist)  (en proceso)
 
     Si la clase está llena, que se puedan anotar en lista de espera.
 
@@ -30,25 +30,17 @@
 
     ¿Qué packs son los más vendidos?
 
-6. Horarios visibles por disciplina o entrenador
 
-    Un endpoint tipo /horarios?disciplina_id=2 o /horarios?profesor_id=5.
 
-7. Sistema de reservas múltiples
 
-    Inscribirse a varias clases con un solo clic desde un calendario semanal.
 
-8. Control de pagos y facturación (opcional)
 
-    Relacionar packs con un pago (tabla payments).
-
-    Registrar si está pago, método (efectivo, MP), fecha, etc.
-
-9. App móvil para admins / alumnos (frontend)
+9. App móvil para admins / alumnos (frontend)  (a estimar)
 
     Ya estás con React Native. Buen momento para ofrecer experiencia mobile dedicada.
 
-10. Soporte para múltiples gimnasios (modo SaaS)
+
+10. Soporte para múltiples gimnasios (modo SaaS) (a estimar)
 
     Ya estás cerca: podrías permitir que cada gimnasio administre su base, sus usuarios y horarios.
 
@@ -56,3 +48,5 @@
 
 
 11. Estados de la clase, para que el admin pueda suspenderlas por ejemplo.
+
+12. Trabajo que recorra las fechas de vencimiento de los packs y si es igual a getdate() cambie el estado a 0 (vencido)     finalizado (en pruebas)

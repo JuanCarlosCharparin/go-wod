@@ -129,6 +129,14 @@ func CreateCalendar(c *gin.Context) {
 		return
 	}
 
+	// Validar créditos disponibles
+	today := time.Now()
+	packUsage, err := services.GetPackUsage(calendar.UserId, class.GymId, class.DisciplineId, today)
+	if err != nil || packUsage.Remaining <= 0 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No hay créditos disponibles en el pack activo"})
+		return
+	}
+
 	// Contar inscriptos actuales
 	var count int64
 	database.DB.Model(&models.Calendar{}).
@@ -157,14 +165,6 @@ func CreateCalendar(c *gin.Context) {
 			"message": "Clase llena. Te has anotado en la lista de espera.",
 			"waitlist": true,
 		})
-		return
-	}
-
-	// Validar créditos disponibles
-	today := time.Now()
-	packUsage, err := services.GetPackUsage(calendar.UserId, class.GymId, class.DisciplineId, today)
-	if err != nil || packUsage.Remaining <= 0 {
-		c.JSON(http.StatusForbidden, gin.H{"error": "No hay créditos disponibles en el pack activo"})
 		return
 	}
 
@@ -292,4 +292,40 @@ func CancelClassEnrollment(c *gin.Context) {
 		"message": "Inscripción cancelada con éxito",
 		"status":  calendar.Status,
 	})
+}
+
+
+
+
+func GetUserUsedClasses(c *gin.Context) {
+	userID := c.Param("id")
+
+	var userPack models.UserPack
+	err := database.DB.Preload("Pack").
+		Where("user_id = ? AND status = 1",
+			userID).
+		First(&userPack).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró un pack activo para el usuario"})
+		return
+	}
+
+	// Contar clases usadas
+	used, err := services.CountUsedClasses(userPack.UserId, userPack.GymId, userPack.DisciplineId, userPack.StartDate, userPack.ExpirationDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al contar clases usadas"})
+		return
+	}
+
+	// Armar pack usage
+	packUsage := &services.PackUsage{
+		PackID:        userPack.PackId,
+		ClassQuantity: userPack.Pack.ClassQuantity,
+		Used:          used,
+		Remaining:     userPack.Pack.ClassQuantity - used,
+	}
+
+	response := packUsage
+
+	c.JSON(http.StatusOK, response)
 }
