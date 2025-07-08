@@ -8,7 +8,7 @@
 
     Por ejemplo, si se inscribió y no asistió, se le descuenta el crédito igual o se lo penaliza tras 3 faltas.
 
-3. Notificaciones o recordatorios
+3. Notificaciones o recordatorios (a estimar)
 
     Recordatorio 1 hora antes de su clase.
 
@@ -47,6 +47,13 @@
     Te acercaría a una app como Fitco, SportClub o similares.
 
 
-11. Estados de la clase, para que el admin pueda suspenderlas por ejemplo.
+11. Estados de la clase, para que el admin pueda suspenderlas por ejemplo. (pendiente, por ahora podemos manejar sin estados)
 
 12. Trabajo que recorra las fechas de vencimiento de los packs y si es igual a getdate() cambie el estado a 0 (vencido)     finalizado (en pruebas)
+
+
+
+
+Detalles: 
+
+Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (podemos reutilizar una funcion dentro de otra al contar las clases inscriptas de un alumno)

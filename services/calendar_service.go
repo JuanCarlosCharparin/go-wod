@@ -16,8 +16,6 @@ type PackUsage struct {
 
 func GetPackUsage(userID, gymID, disciplineID uint, classDate time.Time) (*PackUsage, error) {
 	var userPack models.UserPack
-
-	// Usamos la fecha actual, no la fecha de la clase
 	today := time.Now()
 
 	err := database.DB.Preload("Pack").
@@ -31,31 +29,26 @@ func GetPackUsage(userID, gymID, disciplineID uint, classDate time.Time) (*PackU
 		return nil, err
 	}
 
-	// Contar clases ya tomadas dentro del período del pack
-	var used int64
-	database.DB.Model(&models.Calendar{}).
-		Where("user_id = ? AND class_id IN (?)",
-			userID,
-			database.DB.Model(&models.Class{}).
-				Select("id").
-				Where("date BETWEEN ? AND ? AND gym_id = ? AND discipline_id = ?",
-					userPack.StartDate.Format("2006-01-02"), userPack.ExpirationDate.Format("2006-01-02"), gymID, disciplineID),
-		).Count(&used)
+	used, err := CountUsedClasses(userID, gymID, disciplineID, userPack.StartDate, userPack.ExpirationDate)
+	if err != nil {
+		log.Printf("Error al contar clases usadas: %v", err)
+		return nil, err
+	}
 
 	return &PackUsage{
 		PackID:        userPack.PackId,
 		ClassQuantity: userPack.Pack.ClassQuantity,
-		Used:          int(used),
-		Remaining:     userPack.Pack.ClassQuantity - int(used),
+		Used:          used,
+		Remaining:     userPack.Pack.ClassQuantity - used,
 	}, nil
 }
 
 
-
+// Contar clases de un usuario
 func CountUsedClasses(userID, gymID, disciplineID uint, startDate, endDate time.Time) (int, error) {
 	var used int64
 	err := database.DB.Model(&models.Calendar{}).
-		Where("user_id = ? AND class_id IN (?)",
+		Where("user_id = ? AND class_id IN (?) and status = 'inscripto'",
 			userID,
 			database.DB.Model(&models.Class{}).
 				Select("id").

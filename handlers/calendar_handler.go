@@ -168,7 +168,7 @@ func CreateCalendar(c *gin.Context) {
 		return
 	}
 
-	// ✅ Establecer el estado de inscripción como "inscripto"
+	// Establecer el estado de inscripción como "inscripto"
 	calendar.Status = "inscripto"
 
 	// Guardar inscripción
@@ -234,7 +234,7 @@ func CancelClassEnrollment(c *gin.Context) {
 	if err := database.DB.
 		Preload("Class").
 		Preload("Class.Gym").
-		Where("user_id = ? AND class_id = ?", calendar.UserId, calendar.ClassId).
+		Where("user_id = ? AND class_id = ? and status = 'inscripto'", calendar.UserId, calendar.ClassId).
 		First(&calendar).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró una inscripción para cancelar"})
 		return
