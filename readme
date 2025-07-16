@@ -48,6 +48,7 @@
 
 
 11. Estados de la clase, para que el admin pueda suspenderlas por ejemplo. (pendiente, por ahora podemos manejar sin estados)
+Lo mismo para usuarios, podemos dar de baja a un usuario, luego de algunas clases sin pagar o anotarse.
 
 12. Trabajo que recorra las fechas de vencimiento de los packs y si es igual a getdate() cambie el estado a 0 (vencido)     finalizado (en pruebas)
 

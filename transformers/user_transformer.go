@@ -26,3 +26,22 @@ func TransformUser(user models.User) dto.UserResponse {
 		},
 	}
 }
+
+
+func TransformUserNoGym(user models.User) dto.UserResponseNoGym {
+
+	return dto.UserResponseNoGym{
+		ID: user.Id,
+		Name: user.Name,
+		Lastname: user.Lastname,
+		Gender: user.Gender,
+		Phone: user.Phone,
+		Email: user.Email,
+		BirthDate: user.BirthDate,
+		DNI: *user.DNI,
+		Role: dto.RoleResponse{
+			Id:   user.RoleId,
+			Name: user.Role.Name,
+		},
+	}
+}

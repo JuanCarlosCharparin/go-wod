@@ -1,11 +1,14 @@
 package handlers
 
 import (
-	"wod-go/database"
-	"wod-go/models"
+	"math"
 	"net/http"
+	"strconv"
+	"wod-go/database"
 	"wod-go/dto"
+	"wod-go/models"
 	"wod-go/transformers"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,25 +37,56 @@ func GetUserId(c *gin.Context) {
 
 func GetUsersByGymId(c *gin.Context) {
 	gymID := c.Param("id")
+	roleID := c.Param("rol")
 
+	// Paginación
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	// Búsqueda y orden
+	search := c.DefaultQuery("search", "")
+	sort := c.DefaultQuery("sort", "id")
+	order := c.DefaultQuery("order", "asc")
+
+	db := database.DB.Model(&models.User{}).
+		Preload("Gym").
+		Preload("Role").
+		Where("gym_id = ? AND role_id = ?", gymID, roleID)
+
+	if search != "" {
+		searchTerm := "%" + search + "%"
+		db = db.Where("name LIKE ? OR lastname LIKE ? OR email LIKE ? OR dni LIKE ?", searchTerm, searchTerm, searchTerm, searchTerm)
+	}
+
+	// Contar total antes de paginar
+	var total int64
+	db.Count(&total)
+
+	// Obtener resultados paginados
 	var users []models.User
-	if err := database.DB.Preload("Gym").Preload("Role").Where("gym_id = ?", gymID).Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios"})
+	err := db.Order(sort + " " + order).Offset(offset).Limit(limit).Find(&users).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener usuarios"})
 		return
 	}
 
-	if len(users) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron usuarios para este gimnasio"})
-		return
-	}
-
-	var response []dto.UserResponse
+	// Mapear a DTO
+	var response []dto.UserResponseNoGym
 	for _, user := range users {
-		response = append(response, transformers.TransformUser(user))
+		response = append(response, transformers.TransformUserNoGym(user))
 	}
 
-	c.JSON(http.StatusOK, response)
+	// Devolver respuesta paginada
+	c.JSON(http.StatusOK, dto.PaginatedUsersResponse{
+		Data:       response,
+		Total:      total,
+		Page:       page,
+		Limit:      limit,
+		TotalPages: int(math.Ceil(float64(total) / float64(limit))),
+	})
 }
+
 
 func CreateUser(c *gin.Context) {
 	var user models.User

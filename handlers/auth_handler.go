@@ -74,7 +74,8 @@ func LoginUser(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := database.DB.Where("email = ?", request.Email).First(&user).Error; err != nil {
+	if err := database.DB.Preload("Gym").
+    	Preload("Role").Where("email = ?", request.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no encontrado"})
 		return
 	}
@@ -93,13 +94,25 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	userResponse := dto.UserResponse{
+		ID:       user.Id,
+		Name:     user.Name,
+		Lastname: user.Lastname,
+		Email:    user.Email,
+		Gym: dto.GymResponseMin{
+			ID:   user.Gym.Id,
+			Name: user.Gym.Name,
+		},
+		Role: dto.RoleResponse{
+			Id:   user.Role.Id,
+			Name: user.Role.Name,
+		},
+	}
+
+	
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
-		"user": gin.H{
-			"id":    user.Id,
-			"name":  user.Name,
-			"email": user.Email,
-		},
+		"user":  userResponse,
 	})
 }
 

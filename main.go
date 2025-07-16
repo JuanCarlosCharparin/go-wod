@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 	"wod-go/database"
 	"wod-go/handlers"
 	"wod-go/jobs"
 	"wod-go/middleware"
 	"wod-go/models"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -44,10 +46,22 @@ func main() {
 		&models.Waitlist{},
 	)
 
-	r := gin.Default()
+	//r := gin.Default()
 
 	//cors
-	r.Use(cors.Default())
+	r := gin.New() // ← NO usar gin.Default() si aplicás middlewares manuales
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+
+	// Configuración explícita de CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Rutas protegidas
 	protected := r.Group("/api")
@@ -103,7 +117,7 @@ func main() {
 	//users
 	r.GET("/users", handlers.GetUsers)
 	r.GET("/users/:id", handlers.GetUserId)
-	r.GET("/users/gym/:id", handlers.GetUsersByGymId)
+	r.GET("/users/gym/:id/:rol", handlers.GetUsersByGymId)
 	r.POST("/users", handlers.CreateUser)
 	r.POST("/register", handlers.Register)
 	r.POST("/login", handlers.LoginUser)
