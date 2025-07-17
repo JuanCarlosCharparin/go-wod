@@ -53,8 +53,8 @@ Lo mismo para usuarios, podemos dar de baja a un usuario, luego de algunas clase
 12. Trabajo que recorra las fechas de vencimiento de los packs y si es igual a getdate() cambie el estado a 0 (vencido)     finalizado (en pruebas)
 
 
-
+13. Ruta que traiga los user_packs de cada usuario (en proceso)
 
 Detalles: 
 
-Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (podemos reutilizar una funcion dentro de otra al contar las clases inscriptas de un alumno)
+Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (podemos reutilizar una funcion dentro de otra al contar las clases inscriptas de un alumno) (terminado)

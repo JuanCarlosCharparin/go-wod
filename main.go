@@ -178,6 +178,7 @@ func main() {
 	//user_packs
 	r.GET("/user_packs", handlers.GetUserPacks)
 	r.GET("/user_packs/:id", handlers.GetUserPackId)
+	r.GET("/user_packs/user/:id", handlers.GetUserPackByUserId)
 	r.POST("/user_packs", handlers.CreateUserPack)
 	r.PUT("/user_packs/:id", handlers.UpdatedUserPack)
 	r.DELETE("/user_packs/:id", handlers.DeleteUserPack)

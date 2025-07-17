@@ -32,6 +32,34 @@ func GetUserPackId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+
+//Devuelve todos los packs de un usuario
+func GetUserPackByUserId(c *gin.Context){
+
+	user_id := c.Param("id")
+
+	var user_packs []models.UserPack
+	if err := database.DB.Preload("User").Where("user_id = ?", user_id).Find(&user_packs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios de este pack"})
+		return
+	}
+
+	if len(user_packs) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron packs para este usuario"})
+		return
+	}
+
+	var response []dto.UserPackResponse
+	for _, user_pack := range user_packs {
+		response = append(response, transformers.TransformUserPack(user_pack))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
+
+
 func CreateUserPack(c *gin.Context) {
 	var user_pack models.UserPack
 	if err := c.ShouldBindJSON(&user_pack); err != nil {
