@@ -39,7 +39,14 @@ func GetUserPackByUserId(c *gin.Context){
 	user_id := c.Param("id")
 
 	var user_packs []models.UserPack
-	if err := database.DB.Preload("User").Where("user_id = ?", user_id).Find(&user_packs).Error; err != nil {
+	if err := database.DB.
+		Preload("Gym").
+		Preload("User").
+		Preload("Pack").
+		Preload("Discipline").
+		Where("user_id = ?", user_id).
+		Order("created_at DESC").
+		Find(&user_packs).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar usuarios de este pack"})
 		return
 	}
