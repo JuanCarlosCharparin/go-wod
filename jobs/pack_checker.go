@@ -8,6 +8,8 @@ import (
 	"wod-go/services"
 )
 
+//go run main.go check-expired-packs
+
 func CheckExpiredUserPacks() {
 	var userPacks []models.UserPack
 

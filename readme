@@ -53,8 +53,20 @@ Lo mismo para usuarios, podemos dar de baja a un usuario, luego de algunas clase
 12. Trabajo que recorra las fechas de vencimiento de los packs y si es igual a getdate() cambie el estado a 0 (vencido)     finalizado (en pruebas)
 
 
-13. Ruta que traiga los user_packs de cada usuario (en proceso)
+13. Ruta que traiga los user_packs de cada usuario (finalizado)
 
 Detalles: 
 
 Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (podemos reutilizar una funcion dentro de otra al contar las clases inscriptas de un alumno) (terminado)
+
+
+
+
+
+
+14. Tareas nuevas (22/07/2025)
+
+    - Agregar estado en usuarios y clases(suspendido <> eliminado, activo)
+    - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario
+    - En carga masiva de clases probar los templates y que se puedan editar 
+    - diferenciar paquetes de planes(plan = pack) paquete son clases sueltas con fecha de vencimiento(crear tabla plan)

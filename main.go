@@ -77,6 +77,8 @@ func main() {
 	c.AddFunc("@daily", jobs.CheckExpiredUserPacks) 
 	c.Start()
 
+	//ejecutar job go run main.go check-expired-packs
+
 
 	//
 	args := os.Args
@@ -164,6 +166,7 @@ func main() {
 	r.DELETE("/calendar", handlers.CancelClassEnrollment)
 	//clases usadas y restantes por usuario
 	r.GET("/calendar/users/used-classes/:id", handlers.GetUserUsedClasses)
+	r.GET("/calendar/users/used-all-classes/:id", handlers.GetUserPacksUsage)
 
 
 	//packs
@@ -184,10 +187,18 @@ func main() {
 	r.DELETE("/user_packs/:id", handlers.DeleteUserPack)
 
 
-	//schedules
+	//schedules templates
 	r.GET("/templates/gym/:id", handlers.GetScheduleTemplatesByGymID)
 	r.POST("/schedule-templates", handlers.CreateScheduleTemplate)
+	r.PUT("/schedule-templates/:id", handlers.UpdateScheduleTemplate) 
+	r.DELETE("/schedule-templates/:id", handlers.DeleteScheduleTemplate) 
+
+
+	//schedules blocks
 	r.POST("/schedule-blocks", handlers.CreateScheduleBlock)
+	r.POST("/schedule-block", handlers.AddScheduleTemplateBlock)  //agregar un solo bloque
+	r.PUT("/schedule-blocks/:id", handlers.UpdateScheduleBlock)
+	r.DELETE("/schedule-blocks/:id", handlers.DeleteScheduleBlock) 
 
 	//roles
 	r.GET("/roles", handlers.GetRoles)

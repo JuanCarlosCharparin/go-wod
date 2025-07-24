@@ -8,6 +8,7 @@ import (
 	"wod-go/models"
 	"wod-go/services"
 	"wod-go/transformers"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -328,4 +329,84 @@ func GetUserUsedClasses(c *gin.Context) {
 	response := packUsage
 
 	c.JSON(http.StatusOK, response)
+}
+
+
+
+
+func GetUserPacksUsage(c *gin.Context) {
+	userID := c.Param("id")
+	
+	statusParam := c.DefaultQuery("status", "all") // all | 1 | 0
+
+	db := database.DB.
+		Preload("Pack").
+		Preload("Discipline").
+		Preload("Gym").
+		Where("user_id = ?", userID)
+
+	switch statusParam {
+	case "1", "active", "activo":
+		db = db.Where("status = 1")
+	case "0", "inactive", "inactivo", "vencido":
+		db = db.Where("status = 0")
+	// "all" → no agregamos filtro
+	}
+
+	var userPacks []models.UserPack
+	if err := db.Order("start_date DESC").Find(&userPacks).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener packs del usuario"})
+		return
+	}
+
+	if len(userPacks) == 0 {
+		// vacía pero 200, útil para frontend
+		c.JSON(http.StatusOK, []dto.UserPackUsageItem{})
+		return
+	}
+
+	// construir respuesta
+	items := make([]dto.UserPackUsageItem, 0, len(userPacks))
+	for _, up := range userPacks {
+		used, err := services.CountUsedClasses(
+			up.UserId,
+			up.GymId,
+			up.DisciplineId,
+			up.StartDate,
+			up.ExpirationDate,
+		)
+		if err != nil {
+			// si falla el conteo, seguimos pero marcamos error local
+			used = 0
+		}
+		remaining := up.Pack.ClassQuantity - used
+		if remaining < 0 {
+			remaining = 0
+		}
+
+		items = append(items, dto.UserPackUsageItem{
+			UserPackID:     up.Id,
+			Status:         up.Status,
+			StartDate:      up.StartDate.Format("2006-01-02"),
+			ExpirationDate: up.ExpirationDate.Format("2006-01-02"),
+			Used:           used,
+			Remaining:      remaining,
+			ClassQuantity:  up.Pack.ClassQuantity,
+			Pack: dto.PackResponseMin{
+				ID:       up.PackId,
+				PackName: up.Pack.PackName,
+				Price:    up.Pack.Price, // ajustá tipo
+			},
+			Discipline: dto.DisciplineResponse{
+				ID:   up.DisciplineId,
+				Name: up.Discipline.Name,
+			},
+			Gym: dto.GymResponseMin{
+				ID:   up.GymId,
+				Name: up.Gym.Name,
+			},
+		})
+	}
+
+	c.JSON(http.StatusOK, items)
 }
