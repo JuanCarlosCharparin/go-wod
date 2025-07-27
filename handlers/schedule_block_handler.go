@@ -51,7 +51,7 @@ func AddScheduleTemplateBlock(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, input)
+	c.JSON(http.StatusCreated, gin.H{"message": "Bloque creado correctamente"})
 }
 
 

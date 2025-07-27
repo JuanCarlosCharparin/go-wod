@@ -152,7 +152,7 @@ func main() {
 	r.POST("/classes", handlers.CreateClass)
 	r.PUT("/classes/:id", handlers.UpdatedClass)
 	r.DELETE("/classes/:id", handlers.DeleteClass)
-	/* generar clases*/
+	/* generar clases de los blocks con fecha desde y hasta */
 	r.POST("/generate-classes", handlers.GenerateClassesHandler)
 
 

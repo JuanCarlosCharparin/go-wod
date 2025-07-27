@@ -67,6 +67,15 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 14. Tareas nuevas (22/07/2025)
 
     - Agregar estado en usuarios y clases(suspendido <> eliminado, activo)
-    - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario
-    - En carga masiva de clases probar los templates y que se puedan editar 
-    - diferenciar paquetes de planes(plan = pack) paquete son clases sueltas con fecha de vencimiento(crear tabla plan)
+
+    - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario -> en proceso
+
+    - En carga masiva de clases probar los templates y que se puedan editar (ahora los templates se pueden editar y eliminar
+    ojo con crear las clases y que se pisen, o crear dos bloques iguales con la misma hora y fecha)
+
+    - diferenciar paquetes de planes(plan = pack) paquete son clases sueltas con fecha de vencimiento(crear tabla plan) -> proximamente
+
+
+
+
+15. Documentar un poco la API
