@@ -132,9 +132,40 @@ func CreateCalendar(c *gin.Context) {
 
 	// Validar créditos disponibles
 	today := time.Now()
-	packUsage, err := services.GetPackUsage(calendar.UserId, class.GymId, class.DisciplineId, today)
+	   packUsage, err := services.GetPackUsage(calendar.UserId, class.GymId, []uint{class.DisciplineId}, today)
 	if err != nil || packUsage.Remaining <= 0 {
 		c.JSON(http.StatusForbidden, gin.H{"error": "No hay créditos disponibles en el pack activo"})
+		return
+	}
+
+	// Verificar si el usuario tiene al menos una disciplina que coincida con la disciplina de la clase
+	var userPacks []models.UserPack
+	err = database.DB.
+		Preload("Disciplines").
+		Where("user_id = ? AND status = 1 AND ? BETWEEN start_date AND expiration_date", calendar.UserId, today).
+		Find(&userPacks).Error
+
+	if err != nil || len(userPacks) == 0 {
+		c.JSON(http.StatusForbidden, gin.H{"error": "No tenés packs activos con disciplinas válidas"})
+		return
+	}
+
+	// Buscar si alguna disciplina del pack coincide con la de la clase
+	disciplinaValida := false
+	for _, pack := range userPacks {
+		for _, d := range pack.Disciplines {
+			if d.DisciplineId == class.DisciplineId {
+				disciplinaValida = true
+				break
+			}
+		}
+		if disciplinaValida {
+			break
+		}
+	}
+
+	if !disciplinaValida {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Tu pack no incluye la disciplina de esta clase"})
 		return
 	}
 
@@ -302,20 +333,26 @@ func GetUserUsedClasses(c *gin.Context) {
 	userID := c.Param("id")
 
 	var userPack models.UserPack
-	err := database.DB.Preload("Pack").
-		Where("user_id = ? AND status = 1",
-			userID).
-		First(&userPack).Error
+	err := database.DB.Preload("Pack").Preload("Disciplines").
+			Where("user_id = ? AND status = 1",
+					userID).
+			First(&userPack).Error
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró un pack activo para el usuario"})
-		return
+			c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró un pack activo para el usuario"})
+			return
 	}
 
-	// Contar clases usadas
-	used, err := services.CountUsedClasses(userPack.UserId, userPack.GymId, userPack.DisciplineId, userPack.StartDate, userPack.ExpirationDate)
+	// Extraer los IDs de disciplina del pack
+	disciplineIDs := make([]uint, 0, len(userPack.Disciplines))
+	for _, d := range userPack.Disciplines {
+			disciplineIDs = append(disciplineIDs, d.DisciplineId)
+	}
+
+	// Contar clases usadas para todas las disciplinas del pack
+	used, err := services.CountUsedClasses(userPack.UserId, userPack.GymId, disciplineIDs, userPack.StartDate, userPack.ExpirationDate)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al contar clases usadas"})
-		return
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al contar clases usadas"})
+			return
 	}
 
 	// Armar pack usage
@@ -339,11 +376,11 @@ func GetUserPacksUsage(c *gin.Context) {
 	
 	statusParam := c.DefaultQuery("status", "all") // all | 1 | 0
 
-	db := database.DB.
-		Preload("Pack").
-		Preload("Discipline").
-		Preload("Gym").
-		Where("user_id = ?", userID)
+	   db := database.DB.
+			   Preload("Pack").
+			   Preload("Disciplines.Discipline").
+			   Preload("Gym").
+			   Where("user_id = ?", userID)
 
 	switch statusParam {
 	case "1", "active", "activo":
@@ -367,46 +404,54 @@ func GetUserPacksUsage(c *gin.Context) {
 
 	// construir respuesta
 	items := make([]dto.UserPackUsageItem, 0, len(userPacks))
-	for _, up := range userPacks {
-		used, err := services.CountUsedClasses(
-			up.UserId,
-			up.GymId,
-			up.DisciplineId,
-			up.StartDate,
-			up.ExpirationDate,
-		)
-		if err != nil {
-			// si falla el conteo, seguimos pero marcamos error local
-			used = 0
-		}
-		remaining := up.Pack.ClassQuantity - used
-		if remaining < 0 {
-			remaining = 0
-		}
+	   for _, up := range userPacks {
+			   // Extraer los IDs de disciplina del pack
+			   disciplineIDs := make([]uint, 0, len(up.Disciplines))
+			   disciplinesResp := make([]dto.DisciplineResponse, 0, len(up.Disciplines))
+			   for _, d := range up.Disciplines {
+					   disciplineIDs = append(disciplineIDs, d.DisciplineId)
+					   disciplinesResp = append(disciplinesResp, dto.DisciplineResponse{
+							   ID:   d.DisciplineId,
+							   Name: d.Discipline.Name,
+					   })
+			   }
 
-		items = append(items, dto.UserPackUsageItem{
-			UserPackID:     up.Id,
-			Status:         up.Status,
-			StartDate:      up.StartDate.Format("2006-01-02"),
-			ExpirationDate: up.ExpirationDate.Format("2006-01-02"),
-			Used:           used,
-			Remaining:      remaining,
-			ClassQuantity:  up.Pack.ClassQuantity,
-			Pack: dto.PackResponseMin{
-				ID:       up.PackId,
-				PackName: up.Pack.PackName,
-				Price:    up.Pack.Price, // ajustá tipo
-			},
-			Discipline: dto.DisciplineResponse{
-				ID:   up.DisciplineId,
-				Name: up.Discipline.Name,
-			},
-			Gym: dto.GymResponseMin{
-				ID:   up.GymId,
-				Name: up.Gym.Name,
-			},
-		})
-	}
+			   used, err := services.CountUsedClasses(
+					   up.UserId,
+					   up.GymId,
+					   disciplineIDs,
+					   up.StartDate,
+					   up.ExpirationDate,
+			   )
+			   if err != nil {
+					   // si falla el conteo, seguimos pero marcamos error local
+					   used = 0
+			   }
+			   remaining := up.Pack.ClassQuantity - used
+			   if remaining < 0 {
+					   remaining = 0
+			   }
+
+			   items = append(items, dto.UserPackUsageItem{
+					   UserPackID:     up.Id,
+					   Status:         up.Status,
+					   StartDate:      up.StartDate.Format("2006-01-02"),
+					   ExpirationDate: up.ExpirationDate.Format("2006-01-02"),
+					   Used:           used,
+					   Remaining:      remaining,
+					   ClassQuantity:  up.Pack.ClassQuantity,
+					   Pack: dto.PackResponseMin{
+							   ID:       up.PackId,
+							   PackName: up.Pack.PackName,
+							   Price:    up.Pack.Price, // ajustá tipo
+					   },
+					   Disciplines: disciplinesResp,
+					   Gym: dto.GymResponseMin{
+							   ID:   up.GymId,
+							   Name: up.Gym.Name,
+					   },
+			   })
+	   }
 
 	c.JSON(http.StatusOK, items)
 }

@@ -14,7 +14,7 @@ func CheckExpiredUserPacks() {
 	var userPacks []models.UserPack
 
 	// Traer todos los packs activos
-	err := database.DB.Preload("Pack").
+	err := database.DB.Preload("Pack").Preload("Disciplines.Discipline").
 		Where("status = ?", 1).
 		Find(&userPacks).Error
 
@@ -29,8 +29,14 @@ func CheckExpiredUserPacks() {
 		// Condición 1: Fecha vencida
 		expired := now.After(pack.ExpirationDate)
 
+		// Extraer DisciplineIDs
+		var disciplineIDs []uint
+		for _, upd := range pack.Disciplines {
+			disciplineIDs = append(disciplineIDs, upd.DisciplineId)
+		}
+
 		// Condición 2: Clases agotadas
-		used, err := services.CountUsedClasses(pack.UserId, pack.GymId, pack.DisciplineId, pack.StartDate, pack.ExpirationDate)
+		used, err := services.CountUsedClasses(pack.UserId, pack.GymId, disciplineIDs, pack.StartDate, pack.ExpirationDate)
 		if err != nil {
 			log.Printf("Error contando clases para pack_id=%d: %v\n", pack.Id, err)
 			continue

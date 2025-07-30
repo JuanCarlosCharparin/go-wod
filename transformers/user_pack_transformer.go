@@ -6,6 +6,15 @@ import (
 )
 
 func TransformUserPack(up models.UserPack) dto.UserPackResponse {
+	// Transformar disciplinas para traer mas de una
+	disciplines := make([]dto.DisciplineResponse, 0)
+	for _, upd := range up.Disciplines {
+		disciplines = append(disciplines, dto.DisciplineResponse{
+			ID:   upd.Discipline.Id,
+			Name: upd.Discipline.Name,
+		})
+	}
+
 	return dto.UserPackResponse{
 		ID:             up.Id,
 		StartDate:      up.StartDate,
@@ -27,9 +36,6 @@ func TransformUserPack(up models.UserPack) dto.UserPackResponse {
 			Price: up.Pack.Price,
 			ClassQuantity: up.Pack.ClassQuantity,
 		},
-		Discipline: dto.DisciplineResponse{
-			ID:   up.Discipline.Id,
-			Name: up.Discipline.Name,
-		},
+		Disciplines: disciplines, // ahora es un slice
 	}
 }

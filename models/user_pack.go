@@ -16,8 +16,9 @@ type UserPack struct {
 	User            User           `json:"user" gorm:"foreignKey:UserId"`
 	PackId          uint           `json:"pack_id"`             
 	Pack            Pack           `json:"pack" gorm:"foreignKey:PackId"`
-	DisciplineId    uint           `json:"discipline_id"`             
-	Discipline      Discipline     `json:"discipline" gorm:"foreignKey:DisciplineId"`
+	/*DisciplineId    uint           `json:"discipline_id"`             
+	Discipline      Discipline     `json:"discipline" gorm:"foreignKey:DisciplineId"`*/
+	Disciplines    []UserPackDiscipline `json:"disciplines" gorm:"foreignKey:UserPackId"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`

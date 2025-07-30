@@ -68,7 +68,7 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 
     - Agregar estado en usuarios y clases(suspendido <> eliminado, activo)
 
-    - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario -> en proceso
+    - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario -> finalizado(pruebas)
 
     - En carga masiva de clases probar los templates y que se puedan editar (ahora los templates se pueden editar y eliminar
     ojo con crear las clases y que se pisen, o crear dos bloques iguales con la misma hora y fecha)
