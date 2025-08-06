@@ -55,6 +55,7 @@ func Register(c *gin.Context) {
 		Password:  string(hashedPassword),
 		GymId:     input.GymId,
 		RoleId:    3,
+		Status:    true,
 	}
 
 	database.DB.Create(&user)

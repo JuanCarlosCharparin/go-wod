@@ -10,7 +10,8 @@ type UserResponse struct {
 	DNI       string      `json:"dni"`
 	BirthDate *string     `json:"birth_date,omitempty"`
 	Gym       GymResponseMin `json:"gym"` 
-	Role	  RoleResponse `json:"role"` 
+	Role	  RoleResponse `json:"role"`
+	Status	  bool        `json:"status"` 
 }
 
 
@@ -24,6 +25,8 @@ type UserResponseNoGym struct {
 	DNI       string      `json:"dni"`
 	BirthDate *string     `json:"birth_date,omitempty"`
 	Role	  RoleResponse `json:"role"` 
+	Status	  bool        `json:"status"`
+	UserPack  []UserPackResponseMin `json:"user_packs,omitempty"` // Lista de UserPackResponseMin
 }
 
 

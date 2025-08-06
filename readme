@@ -66,7 +66,7 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 
 14. Tareas nuevas (22/07/2025)
 
-    - Agregar estado en usuarios y clases(suspendido <> eliminado, activo)
+    - Agregar estado en usuarios y clases(suspendido <> eliminado, activo)  en usuarios OK
 
     - Al crear el user_pack evaluar la posibilidad de agregar mas de una disciplina por usuario -> finalizado(pruebas)
 

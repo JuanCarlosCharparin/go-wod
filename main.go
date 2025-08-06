@@ -125,6 +125,9 @@ func main() {
 	r.POST("/login", handlers.LoginUser)
 	r.PUT("/users/:id", handlers.UpdatedUser)
 	r.DELETE("/users/:id", handlers.DeleteUser)
+	//dar de baja o alta a un usuario
+	r.PUT("/users/:id/disable", handlers.DisableUser)
+	r.PUT("/users/:id/enable", handlers.EnableUser)
 
 
 	//disciplines
@@ -185,6 +188,11 @@ func main() {
 	r.POST("/user_packs", handlers.CreateUserPack)
 	r.PUT("/user_packs/:id", handlers.UpdatedUserPack)
 	r.DELETE("/user_packs/:id", handlers.DeleteUserPack)
+
+	//user_packs_disciplines
+	r.GET("/user_packs_disciplines", handlers.GetUserPackDisciplines)
+	r.GET("/user_packs_disciplines/active", handlers.GetActiveUserPackDisciplines)
+	r.POST("/user_packs_disciplines", handlers.CreateUserPackDisciplines)
 
 
 	//schedules templates

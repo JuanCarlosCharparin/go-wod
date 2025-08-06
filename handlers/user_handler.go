@@ -52,6 +52,7 @@ func GetUsersByGymId(c *gin.Context) {
 	db := database.DB.Model(&models.User{}).
 		Preload("Gym").
 		Preload("Role").
+		Preload("UserPacks", "status = ?", 1).
 		Where("gym_id = ? AND role_id = ?", gymID, roleID)
 
 	if search != "" {
@@ -109,6 +110,8 @@ func CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "El email ya está registrado"})
 		return
 	}
+	// Establecer status en 1 (activo)
+	user.Status = true
 	database.DB.Create(&user)
 	database.DB.Preload("Gym").Preload("Role").First(&user, user.Id)
 	response := transformers.TransformUser(user)
@@ -162,4 +165,40 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Usuario eliminado correctamente"})
+}
+
+func DisableUser(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+
+	if err := database.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	user.Status = false
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo desactivar el usuario"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario desactivado exitosamente"})
+}
+
+func EnableUser(c *gin.Context) {
+	id := c.Param("id")
+	var user models.User
+
+	if err := database.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	user.Status = true
+	if err := database.DB.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo activar el usuario"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Usuario activado exitosamente"})
 }

@@ -20,6 +20,8 @@ type User struct {
 	Gym             Gym            `json:"gym" gorm:"foreignKey:GymId"`
 	RoleId 			uint           `json:"role_id"` 
 	Role   			Role           `json:"role" gorm:"foreignKey:RoleId"`
+	Status          bool           `json:"status" gorm:"default:true"`
+	UserPacks      []UserPack     `gorm:"foreignKey:UserId"` //relacion con UserPack
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at" gorm:"index"`
