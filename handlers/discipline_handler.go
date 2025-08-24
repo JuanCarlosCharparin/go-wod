@@ -11,7 +11,7 @@ import (
 
 func GetDisciplines(c *gin.Context) {
 	var disciplines []models.Discipline
-	database.DB.Find(&disciplines)
+	database.DB.Preload("Gym").Find(&disciplines)
 	var response []dto.DisciplineResponse
 	for _, cal := range disciplines {
 		response = append(response, transformers.TransformDiscipline(cal))
@@ -24,7 +24,7 @@ func GetDisciplineId(c *gin.Context) {
 	id := c.Param("id")
 
 	var discipline models.Discipline
-	if err := database.DB.First(&discipline, id).Error; err != nil {
+	if err := database.DB.Preload("Gym").First(&discipline, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Disciplina no encontrada"})
 		return
 	}
@@ -34,13 +34,30 @@ func GetDisciplineId(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+//disciplinas por gym
+func GetDisciplinesByGymId(c *gin.Context) {
+	gymId := c.Param("id")
+
+	var disciplines []models.Discipline
+	if err := database.DB.Preload("Gym").Where("gym_id = ?", gymId).Find(&disciplines).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontraron disciplinas"})
+		return
+	}
+
+	var response []dto.DisciplineResponse
+	for _, discipline := range disciplines {
+		response = append(response, transformers.TransformDiscipline(discipline))
+	}
+	c.JSON(http.StatusOK, response)
+}
+
 func CreateDiscipline(c *gin.Context) {
 	var discipline models.Discipline
 	if err := c.ShouldBindJSON(&discipline); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	database.DB.Create(&discipline)
+	database.DB.Preload("Gym").Create(&discipline)
 	response := transformers.TransformDiscipline(discipline)
 	c.JSON(http.StatusOK, response)
 }

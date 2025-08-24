@@ -133,6 +133,7 @@ func main() {
 	//disciplines
 	r.GET("/disciplines", handlers.GetDisciplines)
 	r.GET("/disciplines/:id", handlers.GetDisciplineId)
+	r.GET("/disciplines/gym/:id", handlers.GetDisciplinesByGymId)
 	r.POST("/disciplines", handlers.CreateDiscipline)
 	r.PUT("/disciplines/:id", handlers.UpdatedDiscipline)
 	r.DELETE("/disciplines/:id", handlers.DeleteDiscipline)
@@ -151,6 +152,7 @@ func main() {
 	r.GET("/classes", handlers.GetClasses)
 	r.GET("/classes/:id", handlers.GetClassId)
 	r.GET("/classes/gym/:id", handlers.GetClassesByGymId)
+	r.GET("/classes/onWeek/gym/:id", handlers.GetClassesOnWeekByGymId)
 	r.GET("/calendar/gym/:id/upcoming", handlers.GetUpcomingClassesByGymId) //clases futuras
 	r.POST("/classes", handlers.CreateClass)
 	r.PUT("/classes/:id", handlers.UpdatedClass)
@@ -163,6 +165,7 @@ func main() {
 	r.GET("/calendar", handlers.GetCalendars)
 	r.GET("/calendar/:id", handlers.GetCalendarId)
 	r.GET("/calendar/class/:id", handlers.GetUsersByClassId)
+	r.GET("/calendar/info-class/:id", handlers.GetInfoByClassId)
 	r.GET("/calendar/users/:id", handlers.GetClassesByUserId)
 	r.POST("/calendar", handlers.CreateCalendar)
 	r.PUT("/calendars/:id", handlers.UpdatedCalendar)
@@ -204,9 +207,9 @@ func main() {
 
 	//schedules blocks
 	r.POST("/schedule-blocks", handlers.CreateScheduleBlock)
-	r.POST("/schedule-block", handlers.AddScheduleTemplateBlock)  //agregar un solo bloque
+	r.POST("/schedule-block", handlers.AddScheduleTemplateBlock)
 	r.PUT("/schedule-blocks/:id", handlers.UpdateScheduleBlock)
-	r.DELETE("/schedule-blocks/:id", handlers.DeleteScheduleBlock) 
+	r.DELETE("/schedule-blocks/:id", handlers.DeleteScheduleBlock)
 
 	//roles
 	r.GET("/roles", handlers.GetRoles)

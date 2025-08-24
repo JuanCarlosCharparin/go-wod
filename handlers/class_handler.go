@@ -1,14 +1,16 @@
 package handlers
 
 import (
+	"net/http"
+	"strconv"
+	"time"
 	"wod-go/database"
+	"wod-go/dto"
 	"wod-go/models"
 	"wod-go/services"
-	"net/http"
-	"wod-go/dto"
 	"wod-go/transformers"
+
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 func GetClasses(c *gin.Context) {
@@ -117,6 +119,52 @@ func GetUpcomingClassesByGymId(c *gin.Context) {
 }
 
 
+// GetClassesOnWeekByGymId obtiene todas las clases de la semana actual para un gimnasio
+func GetClassesOnWeekByGymId(c *gin.Context) {
+	gymID := c.Param("id")
+
+	// offset opcional enviado desde el frontend (en semanas)
+	offsetStr := c.Query("offset") // puede ser "-1", "0", "1"...
+	offset, err := strconv.Atoi(offsetStr)
+	if err != nil {
+		offset = 0 // por defecto la semana actual
+	}
+
+	now := time.Now().AddDate(0, 0, offset*7) // desplazamos la fecha base N semanas
+
+	// Calcular lunes y domingo
+	weekday := int(now.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	monday := now.AddDate(0, 0, -weekday+1).Truncate(24 * time.Hour)
+	sunday := monday.AddDate(0, 0, 6).Truncate(24 * time.Hour)
+
+	// Query a la BD
+	var classes []models.Class
+	if err := database.DB.Preload("Gym").Preload("Discipline").
+		Where("gym_id = ? AND date BETWEEN ? AND ?", gymID, monday, sunday).
+		Order("date ASC").
+		Find(&classes).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudieron obtener las clases."})
+		return
+	}
+
+	var transformedClasses []interface{}
+	for _, class := range classes {
+		var count int64
+		database.DB.Model(&models.Calendar{}).
+			Where("class_id = ? and status = ?", class.Id, "inscripto").
+			Count(&count)
+		transformedClasses = append(transformedClasses, transformers.TransformClassInfo(class, int(count)))
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"week_start": monday.Format("2006-01-02"),
+		"week_end":   sunday.Format("2006-01-02"),
+		"classes":    transformedClasses,
+	})
+}
 
 func CreateClass(c *gin.Context) {
 	var class models.Class

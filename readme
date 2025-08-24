@@ -75,7 +75,10 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 
     - diferenciar paquetes de planes(plan = pack) paquete son clases sueltas con fecha de vencimiento(crear tabla plan) -> proximamente
 
+    - El administrador debe aceptar al usuario entrante que se registra al gimnasio mediante la app mobile
+
 
 
 
 15. Documentar un poco la API
+

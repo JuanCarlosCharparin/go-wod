@@ -1,12 +1,13 @@
 package transformers
 
 import (
+	"time"
 	"wod-go/dto"
 	"wod-go/models"
 	"wod-go/services"
 )
 
-func TransformCalendar(calendar models.Calendar, usage *services.PackUsage) dto.CalendarResponse {
+func TransformCalendar(calendar models.Calendar, usage *services.PackUsage, reserved time.Time) dto.CalendarResponse {
 	var usageDto *dto.PackUsageResponse
 	if usage != nil {
 		usageDto = &dto.PackUsageResponse{
@@ -41,6 +42,7 @@ func TransformCalendar(calendar models.Calendar, usage *services.PackUsage) dto.
 		},
 		Status: calendar.Status,
 		PackUsage: usageDto,
+		Reserved: reserved,
 	}
 }
 

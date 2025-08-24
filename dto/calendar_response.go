@@ -1,11 +1,16 @@
 package dto
 
+import (
+	"time"
+)
+
 type CalendarResponse struct {
 	ID    uint            `json:"id"`
 	User  UserResponseMin `json:"user"`
 	Class ClassResponse   `json:"class"`
 	Status string         `json:"status"`
 	PackUsage *PackUsageResponse `json:"pack_usage,omitempty"`
+	Reserved   time.Time         `json:"reserved"`
 }
 
 type PackUsageResponse struct {

@@ -11,4 +11,6 @@ type Discipline struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+	GymId     uint           `json:"gym_id"`
+	Gym       Gym            `json:"gym" gorm:"foreignKey:GymId"` //relacion a gym_id
 }

@@ -1,8 +1,9 @@
 package transformers
 
 import (
-	"wod-go/models"
+	"time"
 	"wod-go/dto"
+	"wod-go/models"
 )
 
 func TransformClass(class models.Class) dto.ClassResponse {
@@ -27,10 +28,30 @@ func TransformClass(class models.Class) dto.ClassResponse {
 func TransformClassInfo(class models.Class, enrolled int) dto.ClassResponseInfo {
 	vacancy := class.Capacity - enrolled
 
+	dateParsed, _ := time.Parse(time.RFC3339, class.Date)
+    timeParsed, _ := time.Parse("15:04:05", class.Time)
+
+    classDateTime := time.Date(
+        dateParsed.Year(), dateParsed.Month(), dateParsed.Day(),
+        timeParsed.Hour(), timeParsed.Minute(), timeParsed.Second(),
+        0, dateParsed.Location(),
+    )
+
+    dias := map[time.Weekday]string{
+        time.Monday:    "Lunes",
+        time.Tuesday:   "Martes",
+        time.Wednesday: "Miércoles",
+        time.Thursday:  "Jueves",
+        time.Friday:    "Viernes",
+        time.Saturday:  "Sábado",
+        time.Sunday:    "Domingo",
+    }
+
 	return dto.ClassResponseInfo{
 		ID:       class.Id,
 		Date:     class.Date,
 		Time:     class.Time,
+		DayOfWeek:  dias[classDateTime.Weekday()],
 		Capacity: class.Capacity,
 		Enrolled: enrolled,
 		Vacancy:  vacancy,
@@ -47,7 +68,7 @@ func TransformClassInfo(class models.Class, enrolled int) dto.ClassResponseInfo 
 
 
 
-func TransformClassWithStatus(class models.Class, status string) dto.ClassWithStatusResponse {
+func TransformClassWithStatus(class models.Class, status string, reserved time.Time) dto.ClassWithStatusResponse {
 	return dto.ClassWithStatusResponse{
 		ID:     class.Id,
 		Date:   class.Date,
@@ -60,6 +81,7 @@ func TransformClassWithStatus(class models.Class, status string) dto.ClassWithSt
 			ID:   class.Discipline.Id,
 			Name: class.Discipline.Name,
 		},
-		Status: status,
+		Status:  status,
+		Reserved: reserved,
 	}
 }

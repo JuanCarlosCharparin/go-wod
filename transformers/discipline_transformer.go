@@ -10,5 +10,9 @@ func TransformDiscipline(discipline models.Discipline) dto.DisciplineResponse {
 	return dto.DisciplineResponse{
 		ID: discipline.Id,
 		Name: discipline.Name,
+		Gym: dto.GymResponseMin{
+			ID:   discipline.GymId,
+			Name: discipline.Gym.Name,
+		},
 	}
 }
