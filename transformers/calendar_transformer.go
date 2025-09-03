@@ -7,7 +7,7 @@ import (
 	"wod-go/services"
 )
 
-func TransformCalendar(calendar models.Calendar, usage *services.PackUsage, reserved time.Time) dto.CalendarResponse {
+func TransformCalendar(calendar models.Calendar, usage *services.PackUsage, reserved time.Time, canceled *time.Time) dto.CalendarResponse {
 	var usageDto *dto.PackUsageResponse
 	if usage != nil {
 		usageDto = &dto.PackUsageResponse{
@@ -43,6 +43,7 @@ func TransformCalendar(calendar models.Calendar, usage *services.PackUsage, rese
 		Status: calendar.Status,
 		PackUsage: usageDto,
 		Reserved: reserved,
+		Canceled: canceled,
 	}
 }
 

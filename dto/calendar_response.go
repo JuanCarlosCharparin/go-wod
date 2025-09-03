@@ -11,6 +11,7 @@ type CalendarResponse struct {
 	Status string         `json:"status"`
 	PackUsage *PackUsageResponse `json:"pack_usage,omitempty"`
 	Reserved   time.Time         `json:"reserved"`
+	Canceled  *time.Time        `json:"canceled,omitempty"`
 }
 
 type PackUsageResponse struct {

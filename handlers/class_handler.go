@@ -137,8 +137,9 @@ func GetClassesOnWeekByGymId(c *gin.Context) {
 	if weekday == 0 {
 		weekday = 7
 	}
-	monday := now.AddDate(0, 0, -weekday+1).Truncate(24 * time.Hour)
-	sunday := monday.AddDate(0, 0, 6).Truncate(24 * time.Hour)
+	monday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()).
+		AddDate(0, 0, -weekday+1)
+	sunday := monday.AddDate(0, 0, 6)
 
 	// Query a la BD
 	var classes []models.Class

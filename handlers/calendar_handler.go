@@ -22,7 +22,7 @@ func GetCalendars(c *gin.Context) {
 
 	var response []dto.CalendarResponse
 	for _, cal := range calendars {
-		response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt))
+		response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt, nil))
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -37,7 +37,7 @@ func GetCalendarId(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Calendario no encontrado"})
 		return
 	}
-	response := transformers.TransformCalendar(calendar, nil, calendar.CreatedAt)
+	response := transformers.TransformCalendar(calendar, nil, calendar.CreatedAt, nil)
 	c.JSON(http.StatusOK, response)
 }
 
@@ -69,7 +69,7 @@ func GetInfoByClassId(c *gin.Context) {
 	classID := c.Param("id")
 
 	var calendars []models.Calendar
-	if err := database.DB.Preload("User.Gym").Preload("Class.Discipline").Where("class_id = ? and status = ?", classID, "inscripto").Find(&calendars).Error; err != nil {
+	if err := database.DB.Preload("User.Gym").Preload("Class.Discipline").Where("class_id = ? and (status = ? or status = ?)", classID, "inscripto", "ausente").Find(&calendars).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar información de la clase"})
 		return
 	}
@@ -81,7 +81,7 @@ func GetInfoByClassId(c *gin.Context) {
 
 	var response []dto.CalendarResponse
 	for _, cal := range calendars {
-		response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt))
+		response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt, &cal.UpdatedAt))
 	}
 
 	c.JSON(http.StatusOK, response)
@@ -233,7 +233,7 @@ func CreateCalendar(c *gin.Context) {
 
 	// Obtener datos completos para el response
 	database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, calendar.Id)
-	response := transformers.TransformCalendar(calendar, packUsage, calendar.CreatedAt)
+	response := transformers.TransformCalendar(calendar, packUsage, calendar.CreatedAt, nil)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Inscripción exitosa",
@@ -269,7 +269,7 @@ func UpdatedCalendar(c *gin.Context) {
 		return
 	}
 
-	response := transformers.TransformCalendar(calendar, nil, calendar.CreatedAt)
+	response := transformers.TransformCalendar(calendar, nil, calendar.CreatedAt, nil)
 	c.JSON(http.StatusOK, response)
 }
 

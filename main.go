@@ -200,6 +200,7 @@ func main() {
 
 	//schedules templates
 	r.GET("/templates/gym/:id", handlers.GetScheduleTemplatesByGymID)
+	r.GET("/template/gym/:id", handlers.GetTemplatesByGymId)
 	r.POST("/schedule-templates", handlers.CreateScheduleTemplate)
 	r.PUT("/schedule-templates/:id", handlers.UpdateScheduleTemplate) 
 	r.DELETE("/schedule-templates/:id", handlers.DeleteScheduleTemplate) 

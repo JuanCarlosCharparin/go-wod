@@ -10,6 +10,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
+func GetTemplatesByGymId(c *gin.Context) {
+	gymID := c.Param("id")
+
+	var templates []models.ScheduleTemplate
+	err := database.DB.
+		Where("gym_id = ?", gymID).
+		Find(&templates).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al obtener plantillas"})
+		return
+	}
+
+	var response []dto.ScheduleTemplateResponse
+	for _, template := range templates {
+		response = append(response, transformers.TransformScheduleTemplate(template))
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+
+
 func GetScheduleTemplatesByGymID(c *gin.Context) {
 	gymID := c.Param("id")
 
