@@ -48,12 +48,17 @@ func GetPackUsage(userID, gymID uint, disciplineIDs []uint, classDate time.Time)
 func CountUsedClasses(userID, gymID uint, disciplineIDs []uint, startDate, endDate time.Time) (int, error) {
 	var used int64
 	err := database.DB.Model(&models.Calendar{}).
-		Where("user_id = ? AND class_id IN (?) and status = 'inscripto'",
+		Where("user_id = ? AND class_id IN (?) AND status IN ?", 
 			userID,
 			database.DB.Model(&models.Class{}).
 				Select("id").
-				Where("date BETWEEN ? AND ? AND gym_id = ? AND discipline_id IN ?",
+				Where("date BETWEEN ? AND ? AND gym_id = ? AND discipline_id IN ?", 
 					startDate, endDate, gymID, disciplineIDs),
-		).Count(&used).Error
+			[]string{"inscripto", "ausente"},
+		).
+		Distinct("class_id").
+		Count(&used).Error
+
 	return int(used), err
 }
+

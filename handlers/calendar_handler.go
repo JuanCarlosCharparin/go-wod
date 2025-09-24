@@ -66,25 +66,36 @@ func GetUsersByClassId(c *gin.Context) {
 
 
 func GetInfoByClassId(c *gin.Context) {
-	classID := c.Param("id")
+    classID := c.Param("id")
 
-	var calendars []models.Calendar
-	if err := database.DB.Preload("User.Gym").Preload("Class.Discipline").Where("class_id = ? and (status = ? or status = ?)", classID, "inscripto", "ausente").Find(&calendars).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar información de la clase"})
-		return
-	}
+    // Subconsulta: obtener el id del último registro por usuario para esta clase
+    sub := database.DB.
+        Model(&models.Calendar{}).
+        Select("MAX(id)").
+        Where("class_id = ? AND (status = ? OR status = ?)", classID, "inscripto", "ausente").
+        Group("user_id")
 
-	if len(calendars) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró información para esta clase"})
-		return
-	}
+    var calendars []models.Calendar
+    if err := database.DB.
+        Preload("User.Gym").
+        Preload("Class.Discipline").
+        Where("id IN (?)", sub).
+        Find(&calendars).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al buscar información de la clase"})
+        return
+    }
 
-	var response []dto.CalendarResponse
-	for _, cal := range calendars {
-		response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt, &cal.UpdatedAt))
-	}
+    if len(calendars) == 0 {
+        c.JSON(http.StatusNotFound, gin.H{"error": "No se encontró información para esta clase"})
+        return
+    }
 
-	c.JSON(http.StatusOK, response)
+    var response []dto.CalendarResponse
+    for _, cal := range calendars {
+        response = append(response, transformers.TransformCalendar(cal, nil, cal.CreatedAt, &cal.UpdatedAt))
+    }
+
+    c.JSON(http.StatusOK, response)
 }
 
 func GetClassesByUserId(c *gin.Context) {

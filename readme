@@ -82,3 +82,13 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 
 15. Documentar un poco la API
 
+
+
+16. revisar turnos en historial  de alumnos en estado ausente (ok)
+17. revisar que si esta en ausente no figure dos veces en el detalle de la clase. O no se encuentre presente o ausente al mismo tiempo (ok)
+
+18. chat interno de la app (a estimar)
+
+19. fechas automáticas (front)
+20. petición de sumarse al gym desde mobile a panel (a estimar)
+21. agregar la posibilidad de agregar clases directamente y no planes (proceso)
