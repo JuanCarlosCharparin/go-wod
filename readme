@@ -91,4 +91,6 @@ Ver Funcion GetPackUsage y CountUsedClasses en el servicio calendar_service (pod
 
 19. fechas automáticas (front)
 20. petición de sumarse al gym desde mobile a panel (a estimar)
-21. agregar la posibilidad de agregar clases directamente y no planes (proceso)
+21. agregar la posibilidad de agregar clases directamente y no planes (ok pruebas)
+
+22. Lista de espera (a estimar)

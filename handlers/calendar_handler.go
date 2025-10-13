@@ -8,7 +8,6 @@ import (
 	"wod-go/models"
 	"wod-go/services"
 	"wod-go/transformers"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -244,11 +243,10 @@ func CreateCalendar(c *gin.Context) {
 
 	// Obtener datos completos para el response
 	database.DB.Preload("User").Preload("Class.Gym").Preload("Class.Discipline").First(&calendar, calendar.Id)
-	response := transformers.TransformCalendar(calendar, packUsage, calendar.CreatedAt, nil)
+	//response := transformers.TransformCalendar(calendar, packUsage, calendar.CreatedAt, nil)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Inscripción exitosa",
-		"data":    response,
 	})
 }
 
@@ -389,11 +387,24 @@ func GetUserUsedClasses(c *gin.Context) {
 	}
 
 	// Armar pack usage
+	var classQuantity int
+    var packID uint
+    if userPack.PackId != nil && userPack.Pack != nil {
+        classQuantity = userPack.Pack.ClassQuantity
+        packID = *userPack.PackId
+    } else if userPack.ClassQuantity != nil {
+        classQuantity = *userPack.ClassQuantity
+        packID = 0
+    } else {
+        // No hay pack ni cantidad de clases definida
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No hay pack ni cantidad de clases definida para el usuario"})
+    	return
+    }
 	packUsage := &services.PackUsage{
-		PackID:        userPack.PackId,
-		ClassQuantity: userPack.Pack.ClassQuantity,
+		PackID:        packID,
+		ClassQuantity: classQuantity,
 		Used:          used,
-		Remaining:     userPack.Pack.ClassQuantity - used,
+		Remaining:     classQuantity - used,
 	}
 
 	response := packUsage
@@ -437,54 +448,71 @@ func GetUserPacksUsage(c *gin.Context) {
 
 	// construir respuesta
 	items := make([]dto.UserPackUsageItem, 0, len(userPacks))
-	   for _, up := range userPacks {
-			   // Extraer los IDs de disciplina del pack
-			   disciplineIDs := make([]uint, 0, len(up.Disciplines))
-			   disciplinesResp := make([]dto.DisciplineResponse, 0, len(up.Disciplines))
-			   for _, d := range up.Disciplines {
-					   disciplineIDs = append(disciplineIDs, d.DisciplineId)
-					   disciplinesResp = append(disciplinesResp, dto.DisciplineResponse{
-							   ID:   d.DisciplineId,
-							   Name: d.Discipline.Name,
-					   })
-			   }
+	   	for _, up := range userPacks {
+			// Extraer los IDs de disciplina del pack
+			disciplineIDs := make([]uint, 0, len(up.Disciplines))
+			disciplinesResp := make([]dto.DisciplineResponse, 0, len(up.Disciplines))
+			for _, d := range up.Disciplines {
+					disciplineIDs = append(disciplineIDs, d.DisciplineId)
+					disciplinesResp = append(disciplinesResp, dto.DisciplineResponse{
+							ID:   d.DisciplineId,
+							Name: d.Discipline.Name,
+					})
+			}
 
-			   used, err := services.CountUsedClasses(
-					   up.UserId,
-					   up.GymId,
-					   disciplineIDs,
-					   up.StartDate,
-					   up.ExpirationDate,
-			   )
-			   if err != nil {
-					   // si falla el conteo, seguimos pero marcamos error local
-					   used = 0
-			   }
-			   remaining := up.Pack.ClassQuantity - used
-			   if remaining < 0 {
-					   remaining = 0
-			   }
+			used, err := services.CountUsedClasses(
+					up.UserId,
+					up.GymId,
+					disciplineIDs,
+					up.StartDate,
+					up.ExpirationDate,
+			)
+			if err != nil {
+					// si falla el conteo, seguimos pero marcamos error local
+					used = 0
+			}
+			// Lógica para cantidad de clases y restantes
+			var classQuantity int
+			if up.PackId != nil && up.Pack != nil {
+				classQuantity = up.Pack.ClassQuantity
+			} else if up.ClassQuantity != nil {
+				classQuantity = *up.ClassQuantity
+			} else {
+				classQuantity = 0
+			}
 
-			   items = append(items, dto.UserPackUsageItem{
-					   UserPackID:     up.Id,
-					   Status:         up.Status,
-					   StartDate:      up.StartDate.Format("2006-01-02"),
-					   ExpirationDate: up.ExpirationDate.Format("2006-01-02"),
-					   Used:           used,
-					   Remaining:      remaining,
-					   ClassQuantity:  up.Pack.ClassQuantity,
-					   Pack: dto.PackResponseMin{
-							   ID:       up.PackId,
-							   PackName: up.Pack.PackName,
-							   Price:    up.Pack.Price, // ajustá tipo
-					   },
-					   Disciplines: disciplinesResp,
-					   Gym: dto.GymResponseMin{
-							   ID:   up.GymId,
-							   Name: up.Gym.Name,
-					   },
-			   })
-	   }
+			remaining := classQuantity - used
+			if remaining < 0 {
+				remaining = 0
+			}
+
+			var packResp *dto.PackResponseMin
+			if up.PackId != nil && up.Pack != nil {
+				packResp = &dto.PackResponseMin{
+					ID:       *up.PackId,
+					PackName: up.Pack.PackName,
+					Price:    up.Pack.Price,
+				}
+			} else {
+				packResp = nil
+			}
+
+			items = append(items, dto.UserPackUsageItem{
+				UserPackID:     up.Id,
+				Status:         up.Status,
+				StartDate:      up.StartDate.Format("2006-01-02"),
+				ExpirationDate: up.ExpirationDate.Format("2006-01-02"),
+				Used:           used,
+				Remaining:      remaining,
+				ClassQuantity:  classQuantity,
+				Pack: packResp,
+				Disciplines: disciplinesResp,
+				Gym: dto.GymResponseMin{
+						ID:   up.GymId,
+						Name: up.Gym.Name,
+				},
+			})
+	   	}
 
 	c.JSON(http.StatusOK, items)
 }

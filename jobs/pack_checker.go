@@ -35,6 +35,18 @@ func CheckExpiredUserPacks() {
 			disciplineIDs = append(disciplineIDs, upd.DisciplineId)
 		}
 
+
+		// Determinar la cantidad de clases según el caso
+		var classQuantity int
+		if pack.PackId != nil && pack.Pack != nil {
+			classQuantity = pack.Pack.ClassQuantity
+		} else if pack.ClassQuantity != nil {
+			classQuantity = *pack.ClassQuantity
+		} else {
+			log.Printf("Pack sin cantidad de clases definida para user_id=%d (pack_id=%d)\n", pack.UserId, pack.Id)
+			continue
+		}
+
 		// Condición 2: Clases agotadas
 		used, err := services.CountUsedClasses(pack.UserId, pack.GymId, disciplineIDs, pack.StartDate, pack.ExpirationDate)
 		if err != nil {
@@ -42,7 +54,7 @@ func CheckExpiredUserPacks() {
 			continue
 		}
 
-		usedAll := used >= pack.Pack.ClassQuantity
+		usedAll := used >= classQuantity
 
 		if expired || usedAll {
 			pack.Status = 0

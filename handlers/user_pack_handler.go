@@ -86,21 +86,39 @@ func CreateUserPack(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Usuario no válido o eliminado"})
 		return
 	}
-	//Validar que el pack exista y no esté eliminado
-	var pack models.Pack
-	if err := database.DB.
-		Where("id = ? AND deleted_at IS NULL", user_pack.PackId).
-		First(&pack).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Pack no válido o eliminado"})
+	// Caso 1: Validar que venga pack_id o class_quantity
+	if user_pack.PackId == nil && user_pack.ClassQuantity == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Debe enviar un pack_id o una cantidad de clases"})
 		return
 	}
+
+	// Caso 2: Si vino pack_id, verificar que exista
+	if user_pack.PackId != nil {
+		var pack models.Pack
+		if err := database.DB.
+			Where("id = ? AND deleted_at IS NULL", user_pack.PackId).
+			First(&pack).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Pack no válido o eliminado"})
+			return
+		}
+	}
 	// No se valida disciplina única, ya que ahora son varias
-	database.DB.Create(&user_pack)
-	database.DB.Preload("Gym").Preload("User").Preload("Pack").Preload("Disciplines.Discipline").First(&user_pack, user_pack.Id)
+	if err := database.DB.Create(&user_pack).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := database.DB.Preload("Gym").Preload("User").Preload("Pack").Preload("Disciplines.Discipline").
+		First(&user_pack, user_pack.Id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	response := transformers.TransformUserPack(user_pack)
 	c.JSON(http.StatusOK, response)
-}
+	}
 
+	
 func UpdatedUserPack(c *gin.Context) {
 	id := c.Param("id")
 

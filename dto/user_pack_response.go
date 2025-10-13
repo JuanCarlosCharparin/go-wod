@@ -10,6 +10,7 @@ type UserPackResponse struct {
 	Gym            GymResponseMin     `json:"gym"`
 	User           UserResponseMin    `json:"user"`
 	Pack           PackResponseMin    `json:"pack"`
+	ClassQuantity  *int               `json:"class_quantity"`
 	Disciplines    []DisciplineResponse `json:"disciplines"`
 }
 
@@ -21,7 +22,7 @@ type UserPackUsageItem struct {
 	   Used           int             `json:"used"`
 	   Remaining      int             `json:"remaining"`
 	   ClassQuantity  int             `json:"class_quantity"`
-	   Pack           PackResponseMin `json:"pack"`
+	   Pack           *PackResponseMin `json:"pack,omitempty"`
 	   Disciplines    []DisciplineResponse `json:"disciplines"`
 	   Gym            GymResponseMin  `json:"gym"`
 }

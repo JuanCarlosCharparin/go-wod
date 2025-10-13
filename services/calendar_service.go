@@ -36,11 +36,25 @@ func GetPackUsage(userID, gymID uint, disciplineIDs []uint, classDate time.Time)
 		return nil, err
 	}
 
+	// Determinar la cantidad de clases según el caso
+    var classQuantity int
+    var packID uint
+    if userPack.PackId != nil && userPack.Pack != nil {
+        classQuantity = userPack.Pack.ClassQuantity
+        packID = *userPack.PackId
+    } else if userPack.ClassQuantity != nil {
+        classQuantity = *userPack.ClassQuantity
+        packID = 0
+    } else {
+        // No hay pack ni cantidad de clases definida
+        log.Printf("El pack no tiene cantidad de clases definida para user_id=%d, gym_id=%d", userID, gymID)
+    	return nil, nil
+    }
 	return &PackUsage{
-		PackID:        userPack.PackId,
-		ClassQuantity: userPack.Pack.ClassQuantity,
+		PackID:        packID,
+		ClassQuantity: classQuantity,
 		Used:          used,
-		Remaining:     userPack.Pack.ClassQuantity - used,
+		Remaining:     classQuantity - used,
 	}, nil
 }
 
