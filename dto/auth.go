@@ -9,7 +9,7 @@ type RegisterRequest struct {
 	DNI        *string `json:"dni" binding:"required"`
 	BirthDate  *string `json:"birth_date" binding:"required"` 
 	Password   string `json:"password" binding:"required,min=6"`
-	GymId      uint   `json:"gym_id" binding:"required"`
+	GymId      *uint   `json:"gym_id,omitempty"`
 }
 
 

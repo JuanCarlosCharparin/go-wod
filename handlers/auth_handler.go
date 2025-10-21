@@ -23,11 +23,11 @@ func Register(c *gin.Context) {
 	}
 
 	// Verificar que el gimnasio exista
-	var gym models.Gym
+	/*var gym models.Gym
 	if err := database.DB.Where("id = ? AND deleted_at IS NULL", input.GymId).First(&gym).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Gimnasio no válido o eliminado"})
 		return
-	}
+	}*/
 
 	// Verificar que el email no esté registrado
 	var existingUser models.User
@@ -53,9 +53,11 @@ func Register(c *gin.Context) {
 		DNI:       input.DNI,
 		BirthDate: input.BirthDate,
 		Password:  string(hashedPassword),
-		GymId:     input.GymId,
 		RoleId:    3,
 		Status:    true,
+	}
+	if input.GymId != nil {
+		user.GymId = input.GymId
 	}
 
 	database.DB.Create(&user)

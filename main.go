@@ -44,6 +44,7 @@ func main() {
 		&models.Role{},
 		&models.GymSetting{},
 		&models.Waitlist{},
+		&models.GymRequest{},
 	)
 
 	//r := gin.Default()
@@ -215,6 +216,15 @@ func main() {
 	//roles
 	r.GET("/roles", handlers.GetRoles)
 	r.POST("/roles", handlers.CreateRole)
+
+	//waitlist
+	r.GET("/waitlist/class/:id", handlers.GetWaitListByClassId)
+
+	//gym_requests (solicitudes de usuarios para unirse a un gimnasio)
+	r.GET("/gym_requests/gym/:id", handlers.GetPendingGymRequests)
+	r.POST("/gym_requests", handlers.RequestGymMembership)
+	r.PUT("/gym_accept_requests/:id", handlers.AcceptGymRequest)
+	r.PUT("/gym_reject_requests/:id", handlers.RejectGymRequest)
 
 	//gym_settings
 	r.GET("/settings", handlers.GetSettings)

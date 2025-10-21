@@ -16,7 +16,7 @@ type User struct {
 	BirthDate       *string        `json:"birth_date"`
 	DNI             *string        `json:"dni"`
 	Password        string         `json:"-"`
-	GymId           uint           `json:"gym_id"`
+	GymId           *uint           `json:"gym_id"`
 	Gym             Gym            `json:"gym" gorm:"foreignKey:GymId"`
 	RoleId 			uint           `json:"role_id"` 
 	Role   			Role           `json:"role" gorm:"foreignKey:RoleId"`

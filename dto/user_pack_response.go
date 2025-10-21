@@ -15,16 +15,16 @@ type UserPackResponse struct {
 }
 
 type UserPackUsageItem struct {
-	   UserPackID     uint            `json:"user_pack_id"`
-	   Status         int             `json:"status"` // 1 activo, 0 vencido
-	   StartDate      string          `json:"start_date"`
-	   ExpirationDate string          `json:"expiration_date"`
-	   Used           int             `json:"used"`
-	   Remaining      int             `json:"remaining"`
-	   ClassQuantity  int             `json:"class_quantity"`
-	   Pack           *PackResponseMin `json:"pack,omitempty"`
-	   Disciplines    []DisciplineResponse `json:"disciplines"`
-	   Gym            GymResponseMin  `json:"gym"`
+	UserPackID     uint            `json:"user_pack_id"`
+	Status         int             `json:"status"` // 1 activo, 0 vencido
+	StartDate      string          `json:"start_date"`
+	ExpirationDate string          `json:"expiration_date"`
+	Used           int             `json:"used"`
+	Remaining      int             `json:"remaining"`
+	ClassQuantity  int             `json:"class_quantity"`
+	Pack           *PackResponseMin `json:"pack,omitempty"`
+	Disciplines    []DisciplineResponse `json:"disciplines"`
+	Gym            GymResponseMin  `json:"gym"`
 }
 
 type UserPackResponseMin struct {

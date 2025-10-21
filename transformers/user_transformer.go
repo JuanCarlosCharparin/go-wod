@@ -7,6 +7,7 @@ import (
 
 func TransformUser(user models.User) dto.UserResponse {
 
+	
 	return dto.UserResponse{
 		ID:        user.Id,
 		Name:      user.Name,
@@ -16,10 +17,15 @@ func TransformUser(user models.User) dto.UserResponse {
 		Email:     user.Email,
 		BirthDate: user.BirthDate,
 		DNI:       *user.DNI,
-		Gym: dto.GymResponseMin{
-			ID:   user.GymId,
-			Name: user.Gym.Name,
-		},
+		Gym: func() dto.GymResponseMin {
+			if user.GymId == nil || *user.GymId == 0 || user.Gym.Name == "" {
+				return dto.GymResponseMin{}
+			}
+			return dto.GymResponseMin{
+				ID:   user.Gym.Id,
+				Name: user.Gym.Name,
+			}
+		}(),
 		Role: dto.RoleResponse{
 			Id:   user.RoleId,
 			Name: user.Role.Name,
